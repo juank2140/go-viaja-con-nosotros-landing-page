@@ -1,1 +1,8 @@
-{"buildCommand":"next build"} 
+{
+  "build": {
+    "env": {
+      "SKIP_V0_INJECT": "1"
+    }
+  },
+  "buildCommand": "next build"
+}
