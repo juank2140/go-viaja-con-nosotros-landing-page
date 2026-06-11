@@ -8,7 +8,9 @@ export function SiteFooter() {
           <img
             src="/images/logo.png"
             alt="Go Viaja Con Nosotros"
-            className="h-20 w-auto"
+            width={220}
+            height={140}
+            className="h-auto w-44 max-w-full object-contain"
           />
           <p className="text-sm italic text-muted-foreground">
             El mundo te espera, nosotros te llevamos.

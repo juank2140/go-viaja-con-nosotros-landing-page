@@ -56,13 +56,26 @@ export function Hero() {
           alt="Playa de Cancún al atardecer"
           className="h-full w-full scale-105 object-cover"
         />
-        <div className="absolute inset-0 bg-background/55" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/35 to-background/45" />
+        {/* layered overlays for depth */}
+        <div className="absolute inset-0 bg-background/45" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/55" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
+        {/* soft vignette */}
+        <div className="absolute inset-0 [box-shadow:inset_0_0_180px_60px_var(--background)]" />
+        {/* gold ambient glows */}
+        <div className="glow-gold absolute -left-20 top-1/4 size-[28rem] opacity-30" />
+        <div className="glow-gold absolute -right-24 bottom-10 size-[32rem] opacity-25" />
       </div>
 
-      {/* decorative floating plane */}
+      {/* decorative floating planes */}
       <div className="pointer-events-none absolute right-[8%] top-[18%] hidden animate-float text-gold/80 lg:block">
         <Plane className="size-10 -rotate-12" />
+      </div>
+      <div
+        className="pointer-events-none absolute left-[10%] top-[30%] hidden animate-float text-foreground/15 lg:block"
+        style={{ animationDelay: "1.5s" }}
+      >
+        <Plane className="size-7 rotate-45" />
       </div>
 
       <img
