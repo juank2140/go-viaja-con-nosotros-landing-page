@@ -4,12 +4,19 @@ import { useEffect, useState } from "react"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Plane, ShieldCheck, Clock, Sparkles } from "lucide-react"
+import { initializeApp, getApps } from "firebase/app"
+import { getDatabase, ref, onValue } from "firebase/database"
 
-const stats = [
-  { label: "Disponibles", value: "8.742" },
-  { label: "Vendidos", value: "1.258" },
-  { label: "Por boleta", value: "$25k" },
-]
+// ── Firebase ─────────────────────────────────────────────
+const FB_CONFIG = {
+  apiKey: "AIzaSyAB5GIpefHLButGqp1FZz-Vag1IzTp7EdI",
+  authDomain: "llave-maestra-299ca.firebaseapp.com",
+  databaseURL: "https://llave-maestra-299ca-default-rtdb.firebaseio.com",
+  projectId: "llave-maestra-299ca",
+  storageBucket: "llave-maestra-299ca.firebasestorage.app",
+  messagingSenderId: "760359671653",
+  appId: "1:760359671653:web:752aebcfb017c50a15f38c",
+}
 
 // Próximo sorteo: 11 de julio de 2026
 const TARGET = new Date("2026-07-11T20:00:00-05:00").getTime()
@@ -34,8 +41,43 @@ function pad(n: number) {
   return n.toString().padStart(2, "0")
 }
 
+function useFirebaseStats() {
+  const [libres, setLibres] = useState<string>("—")
+  const [vendidos, setVendidos] = useState<string>("—")
+
+  useEffect(() => {
+    try {
+      const app = getApps().length ? getApps()[0] : initializeApp(FB_CONFIG)
+      const db = getDatabase(app)
+
+      // Escuchar datos para calcular stats
+      const unsub = onValue(ref(db, "sorteo/datos"), (snap) => {
+        const data = snap.val() || {}
+        let pag = 0
+        let ap = 0
+        Object.values(data).forEach((d: any) => {
+          if (d?.estado === "P") pag++
+          else if (d?.estado === "A") ap++
+        })
+        const vendido = pag + ap
+        const libre = 10000 - vendido
+        setLibres(libre.toLocaleString("es-CO"))
+        setVendidos(vendido.toLocaleString("es-CO"))
+      })
+
+      return () => unsub()
+    } catch (e) {
+      // Si Firebase falla, mostrar valores default
+    }
+  }, [])
+
+  return { libres, vendidos }
+}
+
 export function Hero() {
   const c = useCountdown()
+  const { libres, vendidos } = useFirebaseStats()
+
   const units = c
     ? [
         { label: "Días", value: pad(c.d) },
@@ -44,6 +86,12 @@ export function Hero() {
         { label: "Seg", value: pad(c.s) },
       ]
     : null
+
+  const stats = [
+    { label: "Disponibles", value: libres },
+    { label: "Vendidos", value: vendidos },
+    { label: "Por boleta", value: "$25k" },
+  ]
 
   return (
     <section
@@ -56,18 +104,14 @@ export function Hero() {
           alt="Playa de Cancún al atardecer"
           className="h-full w-full scale-105 object-cover"
         />
-        {/* layered overlays for depth */}
         <div className="absolute inset-0 bg-background/45" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/55" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
-        {/* soft vignette */}
         <div className="absolute inset-0 [box-shadow:inset_0_0_180px_60px_var(--background)]" />
-        {/* gold ambient glows */}
         <div className="glow-gold absolute -left-20 top-1/4 size-[28rem] opacity-30" />
         <div className="glow-gold absolute -right-24 bottom-10 size-[32rem] opacity-25" />
       </div>
 
-      {/* decorative floating planes */}
       <div className="pointer-events-none absolute right-[8%] top-[18%] hidden animate-float text-gold/80 lg:block">
         <Plane className="size-10 -rotate-12" />
       </div>
@@ -125,12 +169,8 @@ export function Hero() {
                   key={label}
                   className="glass flex min-w-16 flex-col items-center rounded-xl px-3 py-2.5 sm:min-w-20"
                 >
-                  <span className="font-heading text-2xl font-semibold text-gold sm:text-3xl">
-                    --
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    {label}
-                  </span>
+                  <span className="font-heading text-2xl font-semibold text-gold sm:text-3xl">--</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</span>
                 </div>
               ))}
         </div>
@@ -163,6 +203,7 @@ export function Hero() {
         Pago 100% seguro con Bold · Sorteo con la Lotería de Boyacá
       </p>
 
+      {/* Stats en tiempo real desde Firebase */}
       <dl className="glass mt-12 grid w-full max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-2xl">
         {stats.map((s) => (
           <div key={s.label} className="flex flex-col items-center gap-1 px-4 py-6">
