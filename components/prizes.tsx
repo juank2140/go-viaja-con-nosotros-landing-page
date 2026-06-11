@@ -2,19 +2,20 @@ import { Star, PartyPopper, Calendar, Gift, Banknote } from "lucide-react"
 
 export function Prizes() {
   return (
-    <section id="premios" className="px-4 py-20 sm:py-28">
+    <section id="premios" className="relative overflow-hidden px-4 py-20 sm:py-28">
+      <div className="glow-gold pointer-events-none absolute -right-32 top-0 size-96 opacity-40" />
       <div className="mx-auto max-w-6xl">
         <div className="mb-14 text-center">
           <span className="text-xs font-medium uppercase tracking-[0.25em] text-gold">
             Lo que puedes ganar
           </span>
           <h2 className="mt-3 font-heading text-balance text-4xl font-semibold text-foreground sm:text-5xl md:text-6xl">
-            Dos premios, una sola boleta
+            Dos premios, <span className="text-gradient-gold">una sola boleta</span>
           </h2>
         </div>
 
         {/* Premio Mayor */}
-        <article className="glass grid overflow-hidden rounded-3xl md:grid-cols-2">
+        <article className="glass group grid overflow-hidden rounded-3xl transition-transform hover:-translate-y-1 md:grid-cols-2">
           <div className="flex flex-col justify-center gap-5 p-8 sm:p-10">
             <span className="inline-flex w-fit items-center gap-2 rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold">
               <Star className="size-4 fill-gold" /> Premio Mayor
@@ -41,7 +42,7 @@ export function Prizes() {
             <img
               src="/images/hotel-riu-cancun.png"
               alt="Hotel RIU 4 estrellas en Cancún con piscina frente al mar"
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-card/40 to-transparent" />
           </div>

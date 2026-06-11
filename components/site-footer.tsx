@@ -1,18 +1,15 @@
-import { Phone, AtSign, Plane, Calendar } from "lucide-react"
+import { Phone, AtSign, Calendar } from "lucide-react"
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-gold/20 bg-card/40 px-4 py-14">
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <span className="flex size-9 items-center justify-center rounded-lg bg-gold text-gold-foreground">
-              <Plane className="size-5" />
-            </span>
-            <span className="font-heading text-xl font-semibold text-foreground">
-              Go Viaja Con Nosotros
-            </span>
-          </div>
+          <img
+            src="/images/logo.png"
+            alt="Go Viaja Con Nosotros"
+            className="h-20 w-auto"
+          />
           <p className="text-sm italic text-muted-foreground">
             El mundo te espera, nosotros te llevamos.
           </p>

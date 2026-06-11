@@ -149,3 +149,106 @@
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid color-mix(in oklch, var(--gold) 25%, transparent);
 }
+
+@utility text-gradient-gold {
+  background: linear-gradient(
+    100deg,
+    color-mix(in oklch, var(--gold) 70%, white) 0%,
+    var(--gold) 45%,
+    color-mix(in oklch, var(--gold) 60%, black) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Subtle gold radial glow for section backdrops */
+@utility glow-gold {
+  background-image: radial-gradient(
+    closest-side,
+    color-mix(in oklch, var(--gold) 28%, transparent),
+    transparent
+  );
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(220%) skewX(-20deg);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--available) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@utility animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+
+@utility animate-rise {
+  animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-pulse-dot {
+  animation: pulse-ring 2.2s ease-out infinite;
+}
+
+/* Shine sweep used on premium CTA buttons */
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, white 55%, transparent),
+    transparent
+  );
+  width: 40%;
+  transform: translateX(-120%) skewX(-20deg);
+  pointer-events: none;
+}
+.shine:hover::after {
+  animation: shine-sweep 0.9s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-rise,
+  .animate-pulse-dot {
+    animation: none;
+  }
+}
