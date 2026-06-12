@@ -116,40 +116,7 @@ export function TrustSection() {
             ))}
           </div>
 
-          {/* ── LOGOS REALES DE CONFIANZA ─────────────────────── */}
-          <div className="mt-10 grid gap-6 sm:grid-cols-2">
 
-            {/* Bold + métodos de pago */}
-            <div className="glass flex flex-col items-center justify-center gap-5 rounded-2xl border border-white/8 p-8">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Pasarela de pagos oficial</p>
-              <img
-                src={IMG_BOLD}
-                alt="Bold"
-                className="h-12 w-auto object-contain"
-              />
-              <div className="w-full rounded-2xl bg-white p-5">
-                <img
-                  src={IMG_PAGOS}
-                  alt="Métodos de pago aceptados"
-                  className="mx-auto h-auto w-full object-contain"
-                />
-              </div>
-            </div>
-
-            {/* Lotería de Boyacá */}
-            <div className="glass flex flex-col items-center justify-center gap-5 rounded-2xl border border-white/8 p-8">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Resultado verificado por</p>
-              <img
-                src={IMG_LOTERIA}
-                alt="Lotería de Boyacá"
-                className="mx-auto h-28 w-auto object-contain"
-              />
-              <p className="text-center text-sm text-muted-foreground leading-relaxed">
-                Entidad oficial del Estado colombiano.<br />
-                El resultado es público y no puede ser manipulado.
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* ── TRAYECTORIA ─────────────────────────────────────── */}
