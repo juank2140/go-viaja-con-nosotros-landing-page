@@ -35,37 +35,25 @@ function precioUnitario(cant: number) { return cant >= 2 ? PRECIO_2 : PRECIO_1 }
 
 type NumEstado = "L" | "A" | "P"
 
-// ── Botón Bold SVG inline ──────────────────────────────────
+// ── Botón Bold con logo real ───────────────────────────────
+const BOLD_LOGO_WHITE = "data:image/png;base64,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"
+
 function BoldButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className="mt-4 h-14 w-full rounded-full transition-all hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden relative"
+      className="mt-4 h-14 w-full rounded-full transition-all hover:scale-[1.02] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
       style={{
         background: disabled
-          ? "rgba(255,255,255,0.1)"
+          ? "rgba(255,255,255,0.08)"
           : "linear-gradient(135deg, #1a1f5e 0%, #6b21a8 50%, #dc2626 100%)",
         boxShadow: disabled ? "none" : "0 8px 32px rgba(107,33,168,0.35)",
       }}
     >
-      <span className="flex items-center justify-center gap-3 px-6">
-        <span className="text-white text-base font-semibold tracking-wide">Pagar con</span>
-        {/* Bold wordmark SVG */}
-        <svg height="22" viewBox="0 0 120 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* b */}
-          <rect x="0" y="4" width="7" height="40" rx="3.5" fill="white"/>
-          <ellipse cx="14" cy="32" rx="8" ry="10" fill="white"/>
-          {/* o */}
-          <ellipse cx="34" cy="32" rx="9" ry="10" fill="white"/>
-          <ellipse cx="34" cy="32" rx="4" ry="5.5" fill="transparent" style={{mixBlendMode:"normal"}}/>
-          {/* l */}
-          <rect x="48" y="4" width="7" height="40" rx="3.5" fill="white"/>
-          {/* d */}
-          <rect x="113" y="4" width="7" height="40" rx="3.5" fill="white"/>
-          <ellipse cx="103" cy="32" rx="9" ry="10" fill="white"/>
-          <ellipse cx="103" cy="32" rx="4" ry="5.5" fill="transparent"/>
-        </svg>
+      <span className="flex items-center justify-center gap-2.5 px-6 h-full">
+        <span className="text-white text-base font-semibold tracking-wide opacity-90">Pagar con</span>
+        <img src={BOLD_LOGO_WHITE} alt="Bold" className="h-6 w-auto object-contain" />
       </span>
     </button>
   )
