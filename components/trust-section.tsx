@@ -1,4 +1,4 @@
-import { ShieldCheck, CreditCard, Trophy, Users, BadgeCheck, GraduationCap, Compass, AtSign } from "lucide-react"
+import { ShieldCheck, CreditCard, Trophy, Users, BadgeCheck, GraduationCap, Compass, AtSign, Lock, Star, CheckCircle2 } from "lucide-react"
 
 const pillars = [
   {
@@ -43,11 +43,90 @@ const brands = [
   },
 ]
 
+// Garantías destacadas — las que eliminan el miedo al pago
+const garantias = [
+  {
+    icon: Lock,
+    title: "Pago 100% seguro",
+    desc: "Bold procesa tu pago con el mismo cifrado que usan los bancos. Tus datos nunca se almacenan.",
+    badge: "Cifrado bancario",
+    color: "text-available",
+    bg: "bg-available/10 border-available/20",
+  },
+  {
+    icon: Star,
+    title: "Sorteo transparente",
+    desc: "El resultado lo decide la Lotería de Boyacá — una entidad del Estado. No lo controlamos nosotros.",
+    badge: "Entidad oficial",
+    color: "text-gold",
+    bg: "bg-gold/10 border-gold/20",
+  },
+  {
+    icon: CheckCircle2,
+    title: "Premio garantizado",
+    desc: "Si ganas, recibes tu premio. Sin excusas. Tenemos 10+ años de viajes cumplidos que lo respaldan.",
+    badge: "Historial verificable",
+    color: "text-sky-400",
+    bg: "bg-sky-400/10 border-sky-400/20",
+  },
+]
+
 export function TrustSection() {
   return (
     <section id="confianza" className="relative overflow-hidden px-4 py-20 sm:py-28">
       <div className="glow-gold pointer-events-none absolute -left-32 top-10 size-96 opacity-50" />
       <div className="mx-auto max-w-6xl">
+
+        {/* ── GARANTÍAS ANTI-MIEDO (nuevo — punto 4) ─────────── */}
+        <div className="mb-20">
+          <div className="mb-10 text-center">
+            <span className="text-xs font-medium uppercase tracking-[0.25em] text-gold">
+              Antes de pagar, lee esto
+            </span>
+            <h2 className="mt-3 font-heading text-balance text-4xl font-semibold text-foreground sm:text-5xl">
+              ¿Por qué puedes{" "}
+              <span className="text-gradient-gold">confiar tu dinero?</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-pretty leading-relaxed text-muted-foreground">
+              Entendemos que pagar por anticipado genera dudas. Por eso somos completamente transparentes.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {garantias.map((g) => (
+              <div
+                key={g.title}
+                className={`glass group flex flex-col gap-4 rounded-2xl border p-7 transition-transform hover:-translate-y-1 ${g.bg}`}
+              >
+                <div className="flex items-start justify-between">
+                  <span className={`flex size-12 items-center justify-center rounded-xl bg-card/60 ${g.color}`}>
+                    <g.icon className="size-6" />
+                  </span>
+                  <span className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${g.bg} ${g.color}`}>
+                    {g.badge}
+                  </span>
+                </div>
+                <h3 className="font-heading text-xl font-semibold text-foreground">{g.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{g.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Barra de métodos de pago */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <span className="text-xs text-muted-foreground">Pagos aceptados:</span>
+            {["💳 Tarjeta crédito", "🏦 Débito", "🇨🇴 PSE", "📱 Nequi", "🔒 Bold"].map((m) => (
+              <span
+                key={m}
+                className="glass rounded-full border border-white/10 px-4 py-1.5 text-xs font-medium text-muted-foreground"
+              >
+                {m}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* ── TRAYECTORIA ─────────────────────────────────────── */}
         <div className="mb-14 text-center">
           <span className="text-xs font-medium uppercase tracking-[0.25em] text-gold">
             Nuestra trayectoria
