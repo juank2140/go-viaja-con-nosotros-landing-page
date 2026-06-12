@@ -295,15 +295,13 @@ export function NumberSelector() {
                 )
               })}
             </div>
-            {!search && (
-              <div className="mt-6 flex items-center justify-center gap-3">
-                <Button variant="outline" size="sm" className="bg-transparent" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>Anterior</Button>
-                <span className="text-sm text-muted-foreground tabular-nums">
-                  {format(page * PAGE_SIZE)} – {format(Math.min(page * PAGE_SIZE + PAGE_SIZE - 1, 9999))}
-                </span>
-                <Button variant="outline" size="sm" className="bg-transparent" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1}>Siguiente</Button>
-              </div>
-            )}
+            {/* Mensaje de búsqueda en banco */}
+            <div className="mt-5 rounded-2xl border border-gold/15 bg-gold/5 px-4 py-3 text-center">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                ¿No ves tu número favorito? <span className="text-gold font-medium">Búscalo arriba</span> —
+                tenemos 10.000 números disponibles en el banco y puedes comprar cualquiera.
+              </p>
+            </div>
           </div>
 
           {/* Panel de compra */}
