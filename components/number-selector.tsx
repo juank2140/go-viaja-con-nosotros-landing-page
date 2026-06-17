@@ -23,9 +23,9 @@ function getFirebaseDB() {
   return getDatabase(app)
 }
 
-// ── WasenderAPI ────────────────────────────────────────────
+// ── WasenderAPI + ImgBB ────────────────────────────────────
 const WASENDER_TOKEN = "ae5cb567e2accc7887488c1726d33b149ba4eb62554a5961fd818d8e069f2628"
-const WASENDER_SESSION = "93397"
+const IMGBB_KEY = "2b320c1958a201f26ba54520af5689e0"
 const TICKET_URL = "/ticket.png"
 
 async function generarBoletaBase64(
@@ -60,19 +60,35 @@ async function generarBoletaBase64(
   })
 }
 
+async function subirImagenImgBB(base64: string): Promise<string> {
+  const form = new FormData()
+  form.append("image", base64)
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+    method: "POST",
+    body: form,
+  })
+  const json = await res.json()
+  if (!json.success) throw new Error("ImgBB error: " + JSON.stringify(json))
+  return json.data.url as string
+}
+
 async function enviarBoletaWA(
   numero: number, nombre: string, cel: string, ciudad: string
 ) {
   try {
+    // Formato E.164: +57XXXXXXXXXX
     let celLimpio = cel.replace(/\D/g, "")
     if (celLimpio.length === 10) celLimpio = "57" + celLimpio
     if (celLimpio.length !== 12) { console.warn("Celular inválido:", cel); return }
+    const to = "+" + celLimpio
+
     const numStr = String(numero).padStart(4, "0")
-    const to = celLimpio + "@s.whatsapp.net"
     const headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + WASENDER_TOKEN,
     }
+
+    // 1. Mensaje de texto
     const texto =
       `🌍 *¡Hola ${nombre}!*\n\n` +
       `Tu boleta está confirmada y ya eres parte de *Go Viaja Con Nosotros* 🎫\n` +
@@ -82,25 +98,37 @@ async function enviarBoletaWA(
       `✈️ Un viaje a *Cancún* o a *Cartagena* puede ser tuyo el *11 de julio*. ` +
       `Guarda tu boleta, ese número puede cambiar tu historia.\n\n` +
       `¡Mucha suerte! 🍀 _Go Viaja Con Nosotros_`
-    await fetch("https://wasenderapi.com/api/send-text", {
+
+    const resTexto = await fetch("https://www.wasenderapi.com/api/send-message", {
       method: "POST", headers,
-      body: JSON.stringify({ session: WASENDER_SESSION, to, text: texto }),
+      body: JSON.stringify({ to, text: texto }),
     })
-    const imgBase64 = await generarBoletaBase64(numero, nombre, celLimpio, ciudad)
-    await fetch("https://wasenderapi.com/api/send-image", {
+    const jsonTexto = await resTexto.json()
+    console.log("WasenderAPI texto:", jsonTexto)
+
+    // 2. Generar boleta y subir a ImgBB
+    const base64 = await generarBoletaBase64(numero, nombre, celLimpio, ciudad)
+    const imageUrl = await subirImagenImgBB(base64)
+    console.log("ImgBB URL:", imageUrl)
+
+    // 3. Enviar imagen
+    const resImg = await fetch("https://www.wasenderapi.com/api/send-message", {
       method: "POST", headers,
       body: JSON.stringify({
-        session: WASENDER_SESSION, to,
-        image: imgBase64,
-        caption: `🎫 Boleta #${numStr} — Go Viaja Con Nosotros`,
+        to,
+        imageUrl,
+        text: `🎫 Boleta #${numStr} — Go Viaja Con Nosotros`,
       }),
     })
-    console.log("✅ Boleta enviada por WhatsApp a", celLimpio)
+    const jsonImg = await resImg.json()
+    console.log("WasenderAPI imagen:", jsonImg)
+
   } catch (err) {
     console.error("❌ Error enviando WhatsApp:", err)
   }
 }
 
+// ── Config ─────────────────────────────────────────────────
 const PAGE_SIZE = 100
 const TOTAL = 10000
 const PRECIO_1 = 25000
@@ -123,7 +151,7 @@ function playChime() {
 
 type NumEstado = "L" | "A" | "P"
 
-// ── Botón Bold con logo real ───────────────────────────────
+// ── Botón Bold ─────────────────────────────────────────────
 const BOLD_LOGO_WHITE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK0AAABGCAYAAAC+LBQCAAAKwElEQVR4nO2de6xcVRXGf2vmlrYULa3ykmpFUmkkFERssIWghmgMUXyiEgUTDWqUmhqDNDEmJD5CTCHGSkz/AYwoaIy2YrUgMfKQWmyw0UYJKJRqtRbE0pf03pnlH3svzr5zZ+bO3DmPfdr9JZMzM+fMnLW+/Z2979l374UkISEhISEhISEhId/IokAAAABJRU5ErkJggg=="
 
 function BoldButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
@@ -157,7 +185,7 @@ function PaymentLogos() {
       <div className="flex flex-wrap items-center justify-center gap-2">
         {[
           { label: "VISA", bg: "#1a1f71", text: "white", style: "italic font-black text-sm" },
-          { label: "●●", bg: "#eb001b", text: "white", style: "font-bold tracking-[-4px] text-lg", overlay: true },
+          { label: "●●", bg: "#eb001b", text: "white", style: "font-bold tracking-[-4px] text-lg" },
           { label: "PSE", bg: "#00843d", text: "white", style: "font-bold text-xs" },
           { label: "nequi", bg: "#6b21a8", text: "white", style: "font-semibold text-xs" },
           { label: "DaviPlata", bg: "#e8001c", text: "white", style: "font-bold text-[9px]" },
@@ -193,7 +221,7 @@ export function NumberSelector() {
   const [cfgNombre, setCfgNombre] = useState(SORTEO_NOMBRE)
   const [step, setStep] = useState<"select" | "confirm">("select")
   const [confNums, setConfNums] = useState<number[]>([])
-  const [enviando, setEnviando] = useState(false)  // ← NUEVO
+  const [enviando, setEnviando] = useState(false)
   const dbRef = useRef<ReturnType<typeof getDatabase> | null>(null)
 
   useEffect(() => {
@@ -276,7 +304,7 @@ export function NumberSelector() {
 
     await update(ref(db), updates)
 
-    // ── Envío automático de boleta por WhatsApp ────────────
+    // ── Envío automático boleta WhatsApp ───────────────────
     setEnviando(true)
     for (const n of selected) {
       await enviarBoletaWA(n, form.nombre.trim(), cel, form.ciudad.trim())
@@ -352,7 +380,6 @@ export function NumberSelector() {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-          {/* Grid de números */}
           <div className="glass rounded-3xl p-5 sm:p-6">
             <div className="relative mb-5">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -395,7 +422,6 @@ export function NumberSelector() {
             </div>
           </div>
 
-          {/* Panel de compra */}
           <div className="glass h-fit rounded-3xl p-6 lg:sticky lg:top-6">
             <h3 className="font-heading text-2xl font-semibold text-foreground">Tu compra</h3>
             <div className="mt-4 min-h-12 rounded-xl bg-secondary/50 p-3">
