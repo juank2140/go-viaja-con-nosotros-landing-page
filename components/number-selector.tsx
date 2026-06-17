@@ -281,54 +281,53 @@ export function NumberSelector() {
     setErrors(errs)
     if (errs.nombre || errs.celular) return
     if (selected.length === 0) return
-    const db = dbRef.current
-    if (!db) return
 
-    const now = new Date().toISOString()
-    const cel = form.celular.replace(/\D/g, "")
-    const updates: Record<string, unknown> = {}
-    selected.forEach((n) => {
-      updates[`sorteo/banco/${n}`] = "P"
-      updates[`sorteo/datos/${n}`] = {
-        estado: "P", nombre: form.nombre.trim(), cel,
-        ciudad: form.ciudad.trim(), abono: pu,
-        fechaPago: now, origen: "web",
-      }
-    })
-    const evFecha = `${new Date().getDate().toString().padStart(2,"0")}/${(new Date().getMonth()+1).toString().padStart(2,"0")}/${new Date().getFullYear()}`
-    updates[`sorteo/clientes/${cel}`] = {
-      nombre: form.nombre.trim(), cel, ciudad: form.ciudad.trim(),
-      depto: "", dir: "", fechaRegistro: evFecha,
-      eventos: [{ evento: cfgNombre, fecha: evFecha, nums: selected }],
-    }
-
-    await update(ref(db), updates)
-
-    // ── Envío automático boleta WhatsApp ───────────────────
     setEnviando(true)
-    for (const n of selected) {
-      await enviarBoletaWA(n, form.nombre.trim(), cel, form.ciudad.trim())
+    try {
+      const cel = form.celular.replace(/\D/g, "")
+      const orderReference = `GV-${cel}-${Date.now()}`
+      const amountInCents = total * 100
+
+      // Guardar datos pendientes en Firebase (estado "A" = apartado, esperando pago)
+      const db = dbRef.current
+      if (!db) return
+      const evFecha = `${new Date().getDate().toString().padStart(2,"0")}/${(new Date().getMonth()+1).toString().padStart(2,"0")}/${new Date().getFullYear()}`
+      const pendingUpdates: Record<string, unknown> = {}
+      selected.forEach((n) => {
+        pendingUpdates[`sorteo/datos/${n}`] = {
+          estado: "A", nombre: form.nombre.trim(), cel,
+          ciudad: form.ciudad.trim(), abono: pu,
+          fechaReserva: new Date().toISOString(), origen: "web",
+          orderReference,
+        }
+      })
+      pendingUpdates[`sorteo/pendientes/${orderReference}`] = {
+        nums: selected, nombre: form.nombre.trim(), cel,
+        ciudad: form.ciudad.trim(), total, fecha: evFecha,
+      }
+      await update(ref(db), pendingUpdates)
+
+      // Obtener firma de Bold desde el servidor
+      const res = await fetch("/api/bold-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderReference, amountInCents }),
+      })
+      const { integritySignature, apiKey } = await res.json()
+
+      // Redirigir al checkout de Bold
+      const boldUrl = new URL("https://checkout.bold.co/payment/order")
+      boldUrl.searchParams.set("api_key", apiKey)
+      boldUrl.searchParams.set("order_reference", orderReference)
+      boldUrl.searchParams.set("amount_in_cents", String(amountInCents))
+      boldUrl.searchParams.set("currency", "COP")
+      boldUrl.searchParams.set("integrity_signature", integritySignature)
+      boldUrl.searchParams.set("redirect_url", `${window.location.origin}/pago-exitoso?ref=${orderReference}`)
+
+      window.location.href = boldUrl.toString()
+    } finally {
+      setEnviando(false)
     }
-    setEnviando(false)
-    // ──────────────────────────────────────────────────────
-
-    setConfNums(selected)
-    setStep("confirm")
-    playChime()
-
-    const numerosStr = selected.map(format).join(", ")
-    const totalStr = "$" + total.toLocaleString("es-CO")
-    const msg = encodeURIComponent(
-      `✅ *NUEVA VENTA WEB — ${cfgNombre}*\n\n` +
-      `🎟 Número${selected.length > 1 ? "s" : ""}: *${numerosStr}*\n` +
-      `👤 Cliente: ${form.nombre.trim()}\n📞 Celular: ${cel}\n` +
-      (form.ciudad ? `📍 Ciudad: ${form.ciudad.trim()}\n` : "") +
-      `💰 Total: ${totalStr}${selected.length > 1 ? ` (${selected.length} × $${pu.toLocaleString("es-CO")} c/u)` : ""}\n` +
-      `🕐 ${new Date().toLocaleString("es-CO")}\n\n_Venta realizada desde la página web_`
-    )
-    setTimeout(() => { window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank") }, 1500)
-    setSelected([])
-    setForm({ nombre: "", celular: "", ciudad: "" })
   }
 
   function waCliente() {
