@@ -169,7 +169,7 @@ export function NumberSelector() {
   const [search, setSearch] = useState("")
   const [selected, setSelected] = useState<number[]>([])
   const [form, setForm] = useState({ nombre: "", celular: "", ciudad: "" })
-  const [errors, setErrors] = useState({ nombre: false, celular: false })
+  const [errors, setErrors] = useState({ nombre: false, celular: false, celularInvalido: false })
   const [datosNums, setDatosNums] = useState<Record<string, { estado: NumEstado; nombre?: string }>>({})
   const [listaActiva, setListaActiva] = useState<number[]>([])
   const [cfgNombre, setCfgNombre] = useState(SORTEO_NOMBRE)
@@ -245,10 +245,17 @@ export function NumberSelector() {
     setSelected((prev) => prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n])
   }
 
+  function celValido(cel: string) {
+    const digits = cel.replace(/\D/g, "")
+    return digits.length === 10 && digits.startsWith("3")
+  }
+
   async function handlePagar() {
-    const errs = { nombre: !form.nombre.trim(), celular: !form.celular.trim() }
+    const celVacio = !form.celular.trim()
+    const celMal = !celVacio && !celValido(form.celular)
+    const errs = { nombre: !form.nombre.trim(), celular: celVacio, celularInvalido: celMal }
     setErrors(errs)
-    if (errs.nombre || errs.celular) return
+    if (errs.nombre || errs.celular || errs.celularInvalido) return
     if (selected.length === 0) return
 
     setEnviando(true)
@@ -424,9 +431,11 @@ export function NumberSelector() {
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="celular">Celular *</Label>
                 <Input id="celular" value={form.celular}
-                  onChange={(e) => { setForm({ ...form, celular: e.target.value }); setErrors({...errors, celular: false}) }}
-                  placeholder="300 000 0000" inputMode="tel" className={`h-11 ${errors.celular ? "border-red-500" : ""}`} />
-                {errors.celular && <p className="text-xs text-red-400">Campo obligatorio</p>}
+                  onChange={(e) => { setForm({ ...form, celular: e.target.value }); setErrors({...errors, celular: false, celularInvalido: false}) }}
+                  placeholder="300 000 0000" inputMode="tel"
+                  className={`h-11 ${errors.celular || errors.celularInvalido ? "border-red-500" : ""}`} />
+                {errors.celular && <p className="text-xs text-red-400">Ingresa tu celular</p>}
+                {errors.celularInvalido && <p className="text-xs text-red-400">Celular inválido — debe tener 10 dígitos y empezar por 3</p>}
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="ciudad">Ciudad</Label>

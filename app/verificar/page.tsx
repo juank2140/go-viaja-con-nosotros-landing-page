@@ -41,6 +41,11 @@ export default function VerificarPage() {
   async function buscar() {
     const q = query.trim().replace(/\D/g, "")
     if (!q) return
+    // Rechazar si parece celular pero no es colombiano
+    if (q.length === 10 && !q.startsWith("3")) {
+      setNoEncontrado(true)
+      return
+    }
 
     setBuscando(true)
     setResultado(null)
