@@ -1,6 +1,105 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+declare global {
+  interface Window {
+    YT: any
+    onYouTubeIframeAPIReady: () => void
+  }
+}
+
+function VideoExplicativo() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const playerRef = useRef<any>(null)
+  const [playing, setPlaying] = useState(false)
+  const [ready, setReady] = useState(false)
+
+  const initPlayer = useCallback(() => {
+    playerRef.current = new window.YT.Player("yt-hero-player", {
+      videoId: "ujb5l5viShI",
+      playerVars: {
+        autoplay: 0,
+        mute: 1,
+        controls: 0,
+        loop: 1,
+        playlist: "ujb5l5viShI",
+        rel: 0,
+        modestbranding: 1,
+        iv_load_policy: 3,
+        disablekb: 1,
+      },
+      events: {
+        onReady: () => setReady(true),
+        onStateChange: (e: any) => setPlaying(e.data === 1),
+      },
+    })
+  }, [])
+
+  useEffect(() => {
+    if (window.YT && window.YT.Player) {
+      initPlayer()
+    } else {
+      const prev = window.onYouTubeIframeAPIReady
+      window.onYouTubeIframeAPIReady = () => { prev?.(); initPlayer() }
+      if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        const tag = document.createElement("script")
+        tag.src = "https://www.youtube.com/iframe_api"
+        document.head.appendChild(tag)
+      }
+    }
+    return () => { playerRef.current?.destroy?.() }
+  }, [initPlayer])
+
+  // Autoplay al hacer scroll hasta el video
+  useEffect(() => {
+    if (!ready) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) playerRef.current?.playVideo()
+        else playerRef.current?.pauseVideo()
+      },
+      { threshold: 0.5 }
+    )
+    if (containerRef.current) observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [ready])
+
+  function togglePlay() {
+    if (!playerRef.current) return
+    playing ? playerRef.current.pauseVideo() : playerRef.current.playVideo()
+  }
+
+  return (
+    <div ref={containerRef} className="animate-rise mt-8 w-full max-w-2xl">
+      <div
+        className="relative w-full overflow-hidden rounded-2xl shadow-2xl shadow-black/50"
+        style={{ paddingBottom: "56.25%" }}
+      >
+        {/* Contenedor del player de YouTube */}
+        <div id="yt-hero-player" className="absolute inset-0 w-full h-full" />
+
+        {/* Overlay clickable — muestra play solo cuando está pausado */}
+        <button
+          onClick={togglePlay}
+          aria-label={playing ? "Pausar video" : "Reproducir video"}
+          className="absolute inset-0 w-full h-full flex items-center justify-center transition-opacity"
+          style={{ background: "transparent", border: "none", cursor: "pointer" }}
+        >
+          {!playing && (
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/70 transition-colors">
+              <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8 ml-1">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          )}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Plane, ShieldCheck, Clock, Sparkles } from "lucide-react"
@@ -280,18 +379,7 @@ export function Hero() {
           <span className="text-gradient-gold italic">nosotros te llevamos.</span>
         </h1>
 
-        {/* Video explicativo */}
-        <div className="animate-rise mt-8 w-full max-w-2xl">
-          <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl shadow-black/40" style={{ paddingBottom: "56.25%" }}>
-            <iframe
-              src="https://www.youtube.com/embed/ujb5l5viShI"
-              title="¿Cómo funciona Go Viaja Con Nosotros?"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="absolute inset-0 h-full w-full"
-            />
-          </div>
-        </div>
+        <VideoExplicativo />
 
         <p className="animate-rise mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
           Compra tu número y participa por un viaje todo incluido a Cancún, México para 2 personas.
