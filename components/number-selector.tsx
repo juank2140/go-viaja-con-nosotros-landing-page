@@ -23,9 +23,6 @@ function getFirebaseDB() {
   return getDatabase(app)
 }
 
-// ── WasenderAPI + ImgBB ────────────────────────────────────
-const WASENDER_TOKEN = "ae5cb567e2accc7887488c1726d33b149ba4eb62554a5961fd818d8e069f2628"
-const IMGBB_KEY = "2b320c1958a201f26ba54520af5689e0"
 const TICKET_URL = "/ticket.png"
 
 async function generarBoletaBase64(
@@ -60,71 +57,20 @@ async function generarBoletaBase64(
   })
 }
 
-async function subirImagenImgBB(base64: string): Promise<string> {
-  const form = new FormData()
-  form.append("image", base64)
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
-    method: "POST",
-    body: form,
-  })
-  const json = await res.json()
-  if (!json.success) throw new Error("ImgBB error: " + JSON.stringify(json))
-  return json.data.url as string
-}
-
 async function enviarBoletaWA(
   numero: number, nombre: string, cel: string, ciudad: string
 ) {
   try {
-    // Formato E.164: +57XXXXXXXXXX
     let celLimpio = cel.replace(/\D/g, "")
     if (celLimpio.length === 10) celLimpio = "57" + celLimpio
-    if (celLimpio.length !== 12) { console.warn("Celular inválido:", cel); return }
-    const to = "+" + celLimpio
-
-    const numStr = String(numero).padStart(4, "0")
-    const headers = {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + WASENDER_TOKEN,
-    }
-
-    // 1. Mensaje de texto
-    const texto =
-      `🌍 *¡Hola ${nombre}!*\n\n` +
-      `Tu boleta está confirmada y ya eres parte de *Go Viaja Con Nosotros* 🎫\n` +
-      `*Tu número: ${numStr}*\n\n` +
-      `De todos los que quisieron participar, tú lo hiciste — y eso ya te pone un paso adelante. ` +
-      `Cada boleta tiene exactamente las mismas posibilidades, y la tuya está en el juego.\n\n` +
-      `✈️ Un viaje a *Cancún* o a *Cartagena* puede ser tuyo el *11 de julio*. ` +
-      `Guarda tu boleta, ese número puede cambiar tu historia.\n\n` +
-      `¡Mucha suerte! 🍀 _Go Viaja Con Nosotros_`
-
-    const resTexto = await fetch("https://www.wasenderapi.com/api/send-message", {
-      method: "POST", headers,
-      body: JSON.stringify({ to, text: texto }),
-    })
-    const jsonTexto = await resTexto.json()
-    console.log("WasenderAPI texto:", jsonTexto)
-
-    // 2. Generar boleta y subir a ImgBB
     const base64 = await generarBoletaBase64(numero, nombre, celLimpio, ciudad)
-    const imageUrl = await subirImagenImgBB(base64)
-    console.log("ImgBB URL:", imageUrl)
-
-    // 3. Enviar imagen
-    const resImg = await fetch("https://www.wasenderapi.com/api/send-message", {
-      method: "POST", headers,
-      body: JSON.stringify({
-        to,
-        imageUrl,
-        text: `🎫 Boleta #${numStr} — Go Viaja Con Nosotros`,
-      }),
+    await fetch("/api/enviar-boleta", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ base64, numero, nombre, cel, ciudad }),
     })
-    const jsonImg = await resImg.json()
-    console.log("WasenderAPI imagen:", jsonImg)
-
   } catch (err) {
-    console.error("❌ Error enviando WhatsApp:", err)
+    console.error("❌ Error enviando boleta:", err)
   }
 }
 
