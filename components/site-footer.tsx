@@ -34,6 +34,12 @@ export function SiteFooter() {
             Contacto
           </h4>
           <a
+            href="/verificar"
+            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-gold"
+          >
+            🔍 Verificar mi boleta
+          </a>
+          <a
             href="tel:+573005087122"
             className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-gold"
           >
