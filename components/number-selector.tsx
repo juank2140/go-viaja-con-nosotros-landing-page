@@ -359,12 +359,6 @@ export function NumberSelector() {
     }
   }
 
-  function waCliente() {
-    const numerosStr = confNums.map(format).join(", ")
-    const msg = encodeURIComponent(`Hola, acabo de comprar el/los número(s) ${numerosStr} en ${cfgNombre}. ¡Gracias!`)
-    window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank")
-  }
-
   if (step === "confirm") {
     return (
       <section id="numeros" className="px-4 py-20 sm:py-28">
@@ -382,9 +376,6 @@ export function NumberSelector() {
               ))}
             </div>
           </div>
-          <Button size="lg" className="w-full rounded-full bg-[#25D366] text-white hover:bg-[#128C7E] h-12 text-base font-semibold mb-3" onClick={waCliente}>
-            💬 Abrir WhatsApp
-          </Button>
           <Button variant="outline" className="w-full rounded-full bg-transparent" onClick={() => setStep("select")}>
             Comprar más números
           </Button>
