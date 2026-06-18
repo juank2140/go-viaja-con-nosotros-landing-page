@@ -1,74 +1,53 @@
 "use client"
 
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef } from "react"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
-  interface Window {
-    YT: any
-    onYouTubeIframeAPIReady: () => void
-  }
+  interface Window { Vimeo: any }
 }
 
 function VideoExplicativo() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
   const playerRef = useRef<any>(null)
-  const [playing, setPlaying] = useState(false)
-  const [ready, setReady] = useState(false)
+  const [playing, setPlaying] = useState(true)
 
-  const initPlayer = useCallback(() => {
-    playerRef.current = new window.YT.Player("yt-hero-player", {
-      videoId: "ujb5l5viShI",
-      playerVars: {
-        autoplay: 0,
-        mute: 1,
-        controls: 0,
-        loop: 1,
-        playlist: "ujb5l5viShI",
-        rel: 0,
-        modestbranding: 1,
-        iv_load_policy: 3,
-        disablekb: 1,
-      },
-      events: {
-        onReady: () => setReady(true),
-        onStateChange: (e: any) => setPlaying(e.data === 1),
-      },
-    })
+  useEffect(() => {
+    const loadVimeo = () => {
+      playerRef.current = new window.Vimeo.Player(iframeRef.current)
+      playerRef.current.on("play", () => setPlaying(true))
+      playerRef.current.on("pause", () => setPlaying(false))
+    }
+
+    if (window.Vimeo) {
+      loadVimeo()
+    } else {
+      const script = document.createElement("script")
+      script.src = "https://player.vimeo.com/api/player.js"
+      script.onload = loadVimeo
+      document.head.appendChild(script)
+    }
+
+    return () => { playerRef.current?.destroy?.() }
   }, [])
 
+  // Autoplay al hacer scroll, pausa al salir
   useEffect(() => {
-    if (window.YT && window.YT.Player) {
-      initPlayer()
-    } else {
-      const prev = window.onYouTubeIframeAPIReady
-      window.onYouTubeIframeAPIReady = () => { prev?.(); initPlayer() }
-      if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-        const tag = document.createElement("script")
-        tag.src = "https://www.youtube.com/iframe_api"
-        document.head.appendChild(tag)
-      }
-    }
-    return () => { playerRef.current?.destroy?.() }
-  }, [initPlayer])
-
-  // Autoplay al hacer scroll hasta el video
-  useEffect(() => {
-    if (!ready) return
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) playerRef.current?.playVideo()
-        else playerRef.current?.pauseVideo()
+        if (entry.isIntersecting) playerRef.current?.play()
+        else playerRef.current?.pause()
       },
       { threshold: 0.5 }
     )
     if (containerRef.current) observer.observe(containerRef.current)
     return () => observer.disconnect()
-  }, [ready])
+  }, [])
 
   function togglePlay() {
     if (!playerRef.current) return
-    playing ? playerRef.current.pauseVideo() : playerRef.current.playVideo()
+    playing ? playerRef.current.pause() : playerRef.current.play()
   }
 
   return (
@@ -77,14 +56,18 @@ function VideoExplicativo() {
         className="relative w-full overflow-hidden rounded-2xl shadow-2xl shadow-black/50"
         style={{ paddingBottom: "56.25%" }}
       >
-        {/* Contenedor del player — sobredimensionado para recortar overlays de YouTube */}
-        <div id="yt-hero-player" className="absolute w-full" style={{ top: "-13%", height: "126%" }} />
-
-        {/* Overlay clickable — muestra play solo cuando está pausado */}
+        <iframe
+          ref={iframeRef}
+          src="https://player.vimeo.com/video/1202542083?background=1&autoplay=1&loop=1&muted=1"
+          className="absolute inset-0 w-full h-full"
+          allow="autoplay; fullscreen; picture-in-picture"
+          style={{ border: 0 }}
+          title="¿Cómo funciona Go Viaja Con Nosotros?"
+        />
         <button
           onClick={togglePlay}
           aria-label={playing ? "Pausar video" : "Reproducir video"}
-          className="absolute inset-0 w-full h-full flex items-center justify-center transition-opacity z-10"
+          className="absolute inset-0 w-full h-full flex items-center justify-center z-10"
           style={{ background: "transparent", border: "none", cursor: "pointer" }}
         >
           {!playing && (
