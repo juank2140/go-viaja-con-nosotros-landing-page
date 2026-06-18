@@ -77,18 +77,14 @@ function VideoExplicativo() {
         className="relative w-full overflow-hidden rounded-2xl shadow-2xl shadow-black/50"
         style={{ paddingBottom: "56.25%" }}
       >
-        {/* Contenedor del player de YouTube */}
-        <div id="yt-hero-player" className="absolute inset-0 w-full h-full" />
-
-        {/* Tapa el overlay del canal de YouTube (top) y botones (bottom) */}
-        <div className="absolute top-0 left-0 right-0 h-[14%] z-10 pointer-events-none" style={{ background: "#000" }} />
-        <div className="absolute bottom-0 left-0 right-0 h-[12%] z-10 pointer-events-none" style={{ background: "#000" }} />
+        {/* Contenedor del player — sobredimensionado para recortar overlays de YouTube */}
+        <div id="yt-hero-player" className="absolute w-full" style={{ top: "-13%", height: "126%" }} />
 
         {/* Overlay clickable — muestra play solo cuando está pausado */}
         <button
           onClick={togglePlay}
           aria-label={playing ? "Pausar video" : "Reproducir video"}
-          className="absolute inset-0 w-full h-full flex items-center justify-center transition-opacity z-20"
+          className="absolute inset-0 w-full h-full flex items-center justify-center transition-opacity z-10"
           style={{ background: "transparent", border: "none", cursor: "pointer" }}
         >
           {!playing && (
