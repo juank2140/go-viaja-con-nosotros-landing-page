@@ -57,11 +57,16 @@ export function SiteFooter() {
       </div>
 
       <div className="mx-auto mt-10 max-w-6xl border-t border-border pt-6 text-center text-xs leading-relaxed text-muted-foreground">
-        <p>Responsable del sorteo: Juan David Pajo Osorio.</p>
+        <p>Responsable del sorteo: Juan David Pajoy Osorio.</p>
         <p className="mt-1">
           Sorteo realizado con las últimas 4 cifras de la Lotería de Boyacá. Juega con responsabilidad.
         </p>
         <p className="mt-3">
+          <a href="/terminos" className="underline underline-offset-4 hover:text-gold transition-colors">
+            Términos y Condiciones
+          </a>
+        </p>
+        <p className="mt-2">
           © {new Date().getFullYear()} Go Viaja Con Nosotros. Todos los derechos reservados.
         </p>
       </div>
