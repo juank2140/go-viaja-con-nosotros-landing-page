@@ -222,7 +222,22 @@ export function NumberSelector() {
   const [step, setStep] = useState<"select" | "confirm">("select")
   const [confNums, setConfNums] = useState<number[]>([])
   const [enviando, setEnviando] = useState(false)
+  const [boldPopup, setBoldPopup] = useState<Window | null>(null)
   const dbRef = useRef<ReturnType<typeof getDatabase> | null>(null)
+
+  // Escuchar mensaje de éxito desde el popup de Bold
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      if (e.data?.type === "BOLD_PAGO_OK" && e.data?.nums) {
+        setConfNums(e.data.nums)
+        setSelected([])
+        setStep("confirm")
+        setBoldPopup(null)
+      }
+    }
+    window.addEventListener("message", onMessage)
+    return () => window.removeEventListener("message", onMessage)
+  }, [])
 
   useEffect(() => {
     const db = getFirebaseDB()
@@ -324,7 +339,21 @@ export function NumberSelector() {
       boldUrl.searchParams.set("integrity_signature", integritySignature)
       boldUrl.searchParams.set("redirect_url", `${window.location.origin}/pago-exitoso?ref=${orderReference}`)
 
-      window.location.href = boldUrl.toString()
+      // Abrir Bold como popup centrado (modal nativo del navegador)
+      const w = 480, h = 720
+      const left = Math.max(0, Math.round((screen.width - w) / 2))
+      const top = Math.max(0, Math.round((screen.height - h) / 2))
+      const popup = window.open(
+        boldUrl.toString(),
+        "bold-checkout",
+        `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes`
+      )
+      if (popup) {
+        setBoldPopup(popup)
+      } else {
+        // Bloqueado por el navegador → redirigir normalmente
+        window.location.href = boldUrl.toString()
+      }
     } finally {
       setEnviando(false)
     }

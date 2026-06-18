@@ -90,6 +90,13 @@ function PagoExitosoInner() {
       )
       setTimeout(() => { window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank") }, 1000)
 
+      // Si estamos en popup, notificar al padre y cerrar
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({ type: "BOLD_PAGO_OK", nums: numeros }, window.location.origin)
+        setTimeout(() => window.close(), 800)
+        return
+      }
+
       setEstado("exitoso")
     }
 
