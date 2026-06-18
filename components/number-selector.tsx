@@ -152,7 +152,16 @@ function playChime() {
 type NumEstado = "L" | "A" | "P"
 
 // ── Botón Bold ─────────────────────────────────────────────
-const BOLD_LOGO_WHITE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK0AAABGCAYAAAC+LBQCAAAKwElEQVR4nO2de6xcVRXGf2vmlrYULa3ykmpFUmkkFERssIWghmgMUXyiEgUTDWqUmhqDNDEmJD5CTCHGSkz/AYwoaIy2YrUgMfKQWmyw0UYJKJRqtRbE0pf03pnlH3svzr5zZ+bO3DmPfdr9JZMzM+fMnLW+/Z2979l374UkISEhISEhISEhId/IokAAAABJRU5ErkJggg=="
+function BoldLogo() {
+  return (
+    <svg height="22" viewBox="0 0 72 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Bold">
+      <path d="M0 0h10.5c5.8 0 9.8 2.8 9.8 7.8 0 2.4-1.1 4.4-3 5.6 2.6 1.1 4.2 3.4 4.2 6.2 0 5.4-4.2 8.4-10.4 8.4H0V0zm9.8 11.2c2.4 0 3.8-1.2 3.8-3.2s-1.4-3-3.8-3H6.6v6.2h3.2zm.6 11.8c2.6 0 4.2-1.4 4.2-3.6s-1.6-3.4-4.2-3.4H6.6v7h3.8z" fill="white"/>
+      <path d="M25 0h6.6v22h10.8v6H25V0z" fill="white"/>
+      <path d="M53.6 28.4c-7.4 0-12.6-5.4-12.6-14.2S46.2 0 53.6 0s12.6 5.4 12.6 14.2-5.2 14.2-12.6 14.2zm0-6.2c3.4 0 5.8-3 5.8-8s-2.4-8-5.8-8-5.8 3-5.8 8 2.4 8 5.8 8z" fill="white"/>
+      <path d="M68 0h8.4c7.8 0 13 5 13 14s-5.2 14-13 14H68V0zm8.2 21.8c4 0 6.4-2.8 6.4-7.8s-2.4-7.8-6.4-7.8h-1.6v15.6h1.6z" fill="white"/>
+    </svg>
+  )
+}
 
 function BoldButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
   return (
@@ -169,7 +178,7 @@ function BoldButton({ onClick, disabled }: { onClick: () => void; disabled: bool
     >
       <span className="flex items-center justify-center gap-2.5 px-6 h-full">
         <span className="text-white text-base font-semibold tracking-wide opacity-90">Pagar con</span>
-        <img src={BOLD_LOGO_WHITE} alt="Bold" className="h-6 w-auto object-contain" />
+        <BoldLogo />
       </span>
     </button>
   )
