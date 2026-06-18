@@ -276,8 +276,8 @@ export function Hero() {
         </span>
 
         <h1 className="animate-rise font-heading text-balance text-5xl font-semibold leading-[1.05] text-foreground sm:text-6xl md:text-7xl lg:text-8xl">
-          Un número, un destino,{" "}
-          <span className="text-gradient-gold italic">un sueño.</span>
+          El mundo te espera,{" "}
+          <span className="text-gradient-gold italic">nosotros te llevamos.</span>
         </h1>
 
         <p className="animate-rise mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
