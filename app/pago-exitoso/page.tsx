@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { initializeApp, getApps } from "firebase/app"
 import { getDatabase, ref, get, update } from "firebase/database"
@@ -25,7 +25,7 @@ function getDB() {
 
 function format(n: number) { return n.toString().padStart(4, "0") }
 
-export default function PagoExitoso() {
+function PagoExitosoInner() {
   const params = useSearchParams()
   const ref_code = params.get("ref") ?? ""
   const bold_status = params.get("bold-order-status") ?? ""
@@ -53,9 +53,7 @@ export default function PagoExitoso() {
       setNombre(nombreCliente)
       setNums(numeros)
 
-      // Bold redirige con bold-order-status=approved cuando el pago fue exitoso
       if (bold_status !== "approved") {
-        // Liberar números apartados
         const rollback: Record<string, unknown> = {}
         numeros.forEach((n) => { rollback[`sorteo/datos/${n}/estado`] = "L" })
         await update(ref(db), rollback)
@@ -63,7 +61,6 @@ export default function PagoExitoso() {
         return
       }
 
-      // Confirmar pago en Firebase
       const pu = numeros.length >= 2 ? 20000 : 25000
       const updates: Record<string, unknown> = {}
       numeros.forEach((n) => {
@@ -79,12 +76,10 @@ export default function PagoExitoso() {
         depto: "", dir: "", fechaRegistro: fecha,
         eventos: [{ evento: SORTEO_NOMBRE, fecha, nums: numeros }],
       }
-      // Limpiar pendiente
       updates[`sorteo/pendientes/${ref_code}`] = null
 
       await update(ref(db), updates)
 
-      // Notificar al admin por WhatsApp
       const numerosStr = numeros.map(format).join(", ")
       const totalStr = "$" + total.toLocaleString("es-CO")
       const msg = encodeURIComponent(
@@ -148,5 +143,17 @@ export default function PagoExitoso() {
         Volver al inicio
       </a>
     </main>
+  )
+}
+
+export default function PagoExitoso() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground animate-pulse">Cargando...</p>
+      </main>
+    }>
+      <PagoExitosoInner />
+    </Suspense>
   )
 }
