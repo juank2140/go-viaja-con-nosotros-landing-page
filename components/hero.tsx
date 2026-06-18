@@ -280,9 +280,21 @@ export function Hero() {
           <span className="text-gradient-gold italic">nosotros te llevamos.</span>
         </h1>
 
+        {/* Video explicativo */}
+        <div className="animate-rise mt-8 w-full max-w-2xl">
+          <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl shadow-black/40" style={{ paddingBottom: "56.25%" }}>
+            <iframe
+              src="https://www.youtube.com/embed/ujb5l5viShI"
+              title="¿Cómo funciona Go Viaja Con Nosotros?"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 h-full w-full"
+            />
+          </div>
+        </div>
+
         <p className="animate-rise mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
           Compra tu número y participa por un viaje todo incluido a Cancún, México para 2 personas.
-          El mundo te espera, nosotros te llevamos.
         </p>
 
         {/* Countdown */}
