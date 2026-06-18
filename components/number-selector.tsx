@@ -154,35 +154,11 @@ type NumEstado = "L" | "A" | "P"
 // ── Botón Bold ─────────────────────────────────────────────
 function BoldLogo() {
   return (
-    <svg height="22" viewBox="0 0 172 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Bold">
-      <defs>
-        <mask id="bold-e-mask">
-          <rect width="172" height="60" fill="white"/>
-          <rect x="36" y="37" width="30" height="6" fill="black"/>
-        </mask>
-        <mask id="bold-o-mask">
-          <rect width="172" height="60" fill="white"/>
-          <rect x="78" y="27" width="50" height="6" fill="black"/>
-        </mask>
-      </defs>
-      {/* b — stem + right semicircle (lower 2/3) */}
-      <rect x="0" y="0" width="9" height="60" fill="white"/>
-      <path d="M9,20 A20,20 0 0,1 9,60Z" fill="white"/>
-      {/* e — same as b with horizontal gap */}
-      <g mask="url(#bold-e-mask)">
-        <rect x="36" y="0" width="9" height="60" fill="white"/>
-        <path d="M45,20 A20,20 0 0,1 45,60Z" fill="white"/>
-      </g>
-      {/* o — full circle with horizontal gap */}
-      <g mask="url(#bold-o-mask)">
-        <circle cx="103" cy="30" r="24" fill="white"/>
-      </g>
-      {/* l — tall rect */}
-      <rect x="135" y="0" width="9" height="60" fill="white"/>
-      {/* d — left semicircle + stem */}
-      <path d="M162,20 A20,20 0 0,0 162,60Z" fill="white"/>
-      <rect x="162" y="0" width="9" height="60" fill="white"/>
-    </svg>
+    <img
+      src="/logo bold.png"
+      alt="Bold"
+      style={{ height: 22, width: "auto", filter: "brightness(0) invert(1)" }}
+    />
   )
 }
 
