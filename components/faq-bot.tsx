@@ -194,7 +194,7 @@ export function FaqBot() {
         onClick={() => setAbierto((v) => !v)}
         aria-label="Preguntas frecuentes"
         className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-transform hover:scale-110 active:scale-95"
-        style={{ background: "linear-gradient(135deg,#1a1f5e,#6b21a8,#dc2626)" }}
+        style={{ background: "linear-gradient(135deg,#05111f,#c8993a)" }}
       >
         {abierto ? (
           <X size={24} className="text-white" />
@@ -203,7 +203,7 @@ export function FaqBot() {
         )}
         {pulso && !abierto && (
           <span className="absolute inset-0 rounded-full animate-ping opacity-50"
-            style={{ background: "linear-gradient(135deg,#1a1f5e,#6b21a8,#dc2626)" }} />
+            style={{ background: "linear-gradient(135deg,#05111f,#c8993a)" }} />
         )}
       </button>
 
@@ -217,7 +217,7 @@ export function FaqBot() {
         {/* Header */}
         <div
           className="flex items-center gap-3 px-4 py-3 flex-shrink-0"
-          style={{ background: "linear-gradient(135deg,#1a1f5e,#6b21a8,#dc2626)" }}
+          style={{ background: "linear-gradient(135deg,#05111f,#c8993a)" }}
         >
           {vista !== "categorias" && (
             <button onClick={volver} className="text-white/80 hover:text-white mr-1">
