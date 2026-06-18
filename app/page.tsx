@@ -5,6 +5,7 @@ import { TrustSection } from "@/components/trust-section"
 import { NumberSelector } from "@/components/number-selector"
 import { HowItWorks } from "@/components/how-it-works"
 import { SiteFooter } from "@/components/site-footer"
+import { FaqBot } from "@/components/faq-bot"
 
 export default function Page() {
   return (
@@ -16,6 +17,7 @@ export default function Page() {
       <TrustSection />
       <HowItWorks />
       <SiteFooter />
+      <FaqBot />
     </main>
   )
 }
