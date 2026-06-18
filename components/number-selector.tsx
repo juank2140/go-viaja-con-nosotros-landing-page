@@ -23,51 +23,14 @@ function getFirebaseDB() {
   return getDatabase(app)
 }
 
-const TICKET_URL = "/ticket.png"
-
-async function generarBoletaBase64(
-  numero: number, nombre: string, cel: string, ciudad: string
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.crossOrigin = "anonymous"
-    img.onload = () => {
-      const OW = 941, OH = 1672
-      const canvas = document.createElement("canvas")
-      canvas.width = OW; canvas.height = OH
-      const ctx = canvas.getContext("2d")!
-      ctx.drawImage(img, 0, 0, OW, OH)
-      const numStr = String(numero).padStart(4, "0")
-      ctx.save()
-      ctx.font = "bold 58px Arial Black, Arial, sans-serif"
-      ctx.fillStyle = "#5a3e00"
-      ctx.textAlign = "center"
-      ctx.fillText(numStr, 640, 372, 340)
-      ctx.restore()
-      ctx.font = "bold 22px Arial, sans-serif"
-      ctx.fillStyle = "#1A1208"
-      ctx.textAlign = "left"
-      ctx.fillText(nombre || "—", 245, 1108, 430)
-      ctx.fillText(cel || "—", 245, 1158, 430)
-      ctx.fillText(ciudad || "—", 245, 1208, 430)
-      resolve(canvas.toDataURL("image/png").split(",")[1])
-    }
-    img.onerror = () => reject(new Error("No se pudo cargar ticket.png"))
-    img.src = TICKET_URL
-  })
-}
-
 async function enviarBoletaWA(
   numero: number, nombre: string, cel: string, ciudad: string
 ) {
   try {
-    let celLimpio = cel.replace(/\D/g, "")
-    if (celLimpio.length === 10) celLimpio = "57" + celLimpio
-    const base64 = await generarBoletaBase64(numero, nombre, celLimpio, ciudad)
     await fetch("/api/enviar-boleta", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ base64, numero, nombre, cel, ciudad }),
+      body: JSON.stringify({ numero, nombre, cel, ciudad }),
     })
   } catch (err) {
     console.error("❌ Error enviando boleta:", err)

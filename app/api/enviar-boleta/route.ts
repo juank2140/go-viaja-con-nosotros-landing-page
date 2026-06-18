@@ -5,13 +5,9 @@ const IMGBB_KEY = process.env.IMGBB_KEY!
 const WA_URL = "https://www.wasenderapi.com/api/send-message"
 
 export async function POST(req: NextRequest) {
-  const { base64, numero, nombre, cel, ciudad } = await req.json()
+  const { numero, nombre, cel, ciudad } = await req.json()
 
   const numStr = String(numero).padStart(4, "0")
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: "Bearer " + WASENDER_TOKEN,
-  }
 
   let celLimpio = cel.replace(/\D/g, "")
   if (celLimpio.length === 10) celLimpio = "57" + celLimpio
@@ -19,6 +15,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Celular inválido" }, { status: 400 })
   }
   const to = "+" + celLimpio
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: "Bearer " + WASENDER_TOKEN,
+  }
 
   // 1. Mensaje de texto
   const texto =
@@ -37,7 +38,17 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ to, text: texto }),
   })
 
-  // 2. Subir imagen a ImgBB
+  // 2. Generar boleta en el servidor via /api/boleta
+  const origin = new URL(req.url).origin
+  const boletaUrl = `${origin}/api/boleta?n=${numero}&nombre=${encodeURIComponent(nombre)}&cel=${encodeURIComponent(celLimpio)}&ciudad=${encodeURIComponent(ciudad)}`
+  const boletaRes = await fetch(boletaUrl)
+  if (!boletaRes.ok) {
+    return NextResponse.json({ error: "Error generando boleta" }, { status: 500 })
+  }
+  const pngBuffer = await boletaRes.arrayBuffer()
+  const base64 = Buffer.from(pngBuffer).toString("base64")
+
+  // 3. Subir imagen a ImgBB
   const form = new FormData()
   form.append("image", base64)
   const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
@@ -50,7 +61,7 @@ export async function POST(req: NextRequest) {
   }
   const imageUrl: string = imgJson.data.url
 
-  // 3. Enviar imagen por WhatsApp
+  // 4. Enviar imagen por WhatsApp
   await fetch(WA_URL, {
     method: "POST",
     headers,
