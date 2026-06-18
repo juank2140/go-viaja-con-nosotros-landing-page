@@ -193,7 +193,7 @@ export default function VerificarPage() {
             </div>
 
             <p className="text-xs text-muted-foreground mt-4">
-              Resultado del sorteo: últimas 4 cifras de la <strong>Lotería de Boyacá</strong> — 11 de julio 2026.
+              Resultado del sorteo: últimas 4 cifras de la <strong>Lotería de Boyacá</strong> — 15 de agosto 2026.
             </p>
           </div>
         )}

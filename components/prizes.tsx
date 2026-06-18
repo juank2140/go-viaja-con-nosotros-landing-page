@@ -53,7 +53,7 @@ export function Prizes() {
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gold/15 text-gold">
                     <Calendar className="size-4" />
                   </span>
-                  <span className="pt-1">Sorteo: 25 de julio de 2026</span>
+                  <span className="pt-1">Sorteo: 29 de agosto de 2026</span>
                 </li>
               </ul>
               <div className="mt-2 flex items-center gap-2 text-sm font-medium text-gold">
@@ -90,7 +90,7 @@ export function Prizes() {
                 <MapPin className="size-4" /> Ciudad amurallada
               </span>
               <span className="flex items-center gap-1.5 text-muted-foreground">
-                <Calendar className="size-4 text-available" /> Sorteo: 11 de julio de 2026
+                <Calendar className="size-4 text-available" /> Sorteo: 15 de agosto de 2026
               </span>
             </div>
           </div>

@@ -17,7 +17,7 @@ const FB_CONFIG = {
   appId: "1:760359671653:web:752aebcfb017c50a15f38c",
 }
 
-const TARGET = new Date("2026-07-11T20:00:00-05:00").getTime()
+const TARGET = new Date("2026-08-15T20:00:00-05:00").getTime()
 
 // ── Base creíble de ventas simuladas ──────────────────────
 const BASE_VENDIDOS = 847 // número inicial "vendido" al abrir la web

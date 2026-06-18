@@ -22,10 +22,10 @@ export function SiteFooter() {
             Fechas de sorteo
           </h4>
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Calendar className="size-4 text-gold" /> Anticipado: 11 de julio de 2026
+            <Calendar className="size-4 text-gold" /> Anticipado: 15 de agosto de 2026
           </p>
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Calendar className="size-4 text-gold" /> Premio Mayor: 25 de julio de 2026
+            <Calendar className="size-4 text-gold" /> Premio Mayor: 29 de agosto de 2026
           </p>
         </div>
 

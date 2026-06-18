@@ -72,7 +72,7 @@ const FAQS: Record<string, { q: string; a: string }[]> = {
     },
     {
       q: "¿Cómo se elige al ganador?",
-      a: "El número ganador corresponde a las últimas 4 cifras del número ganador de la Lotería de Boyacá del 11 de julio de 2026. Si tu boleta coincide, ¡ganaste!",
+      a: "El número ganador corresponde a las últimas 4 cifras del número ganador de la Lotería de Boyacá del 15 de agosto de 2026. Si tu boleta coincide, ¡ganaste!",
     },
     {
       q: "¿Quién es el responsable del sorteo?",
@@ -86,11 +86,11 @@ const FAQS: Record<string, { q: string; a: string }[]> = {
   premio: [
     {
       q: "¿Qué incluye el Premio Mayor (Cancún)?",
-      a: "✈️ Tiquetes aéreos para 2 personas desde Colombia a Cancún\n🏨 Hotel RIU 4 estrellas todo incluido\n🍽️ Alimentación y bebidas completas\n\nFecha estimada: 25 de julio de 2026.",
+      a: "✈️ Tiquetes aéreos para 2 personas desde Colombia a Cancún\n🏨 Hotel RIU 4 estrellas todo incluido\n🍽️ Alimentación y bebidas completas\n\nFecha estimada: 29 de agosto de 2026.",
     },
     {
       q: "¿Qué incluye el Premio Anticipado (Cartagena)?",
-      a: "🏨 Viaje para 2 personas a Cartagena\n🏨 Hotel Dubai o similar (estándar similar)\n\nEste premio se entrega el 11 de julio de 2026, el mismo día del sorteo anticipado.",
+      a: "🏨 Viaje para 2 personas a Cartagena\n🏨 Hotel Dubai o similar (estándar similar)\n\nEste premio se entrega el 15 de agosto de 2026, el mismo día del sorteo anticipado.",
     },
     {
       q: "¿El premio es en dinero o en viaje?",
@@ -108,15 +108,15 @@ const FAQS: Record<string, { q: string; a: string }[]> = {
   fechas: [
     {
       q: "¿Cuándo es el sorteo anticipado?",
-      a: "El sorteo anticipado es el 11 de julio de 2026. El número ganador se determina con las últimas 4 cifras de la Lotería de Boyacá de ese día.",
+      a: "El sorteo anticipado es el 15 de agosto de 2026. El número ganador se determina con las últimas 4 cifras de la Lotería de Boyacá de ese día.",
     },
     {
       q: "¿Cuándo es el sorteo del Premio Mayor?",
-      a: "El Premio Mayor (viaje a Cancún) se sortea el 25 de julio de 2026, también con la Lotería de Boyacá.",
+      a: "El Premio Mayor (viaje a Cancún) se sortea el 29 de agosto de 2026, también con la Lotería de Boyacá.",
     },
     {
       q: "¿Cuándo serían las fechas del viaje a Cancún?",
-      a: "El viaje está programado para finales de julio de 2026 (fecha exacta se coordina con el ganador). El hotel y los tiquetes se gestionan después del sorteo.",
+      a: "El viaje está programado para finales de agosto de 2026 (fecha exacta se coordina con el ganador). El hotel y los tiquetes se gestionan después del sorteo.",
     },
     {
       q: "¿Hasta cuándo puedo comprar mi número?",
@@ -126,7 +126,7 @@ const FAQS: Record<string, { q: string; a: string }[]> = {
   ganador: [
     {
       q: "¿Ya se realizó el sorteo?",
-      a: "Aún no. El primer sorteo (Premio Anticipado) es el 11 de julio de 2026. El Premio Mayor se sortea el 25 de julio de 2026. ¡Todavía estás a tiempo de participar!",
+      a: "Aún no. El primer sorteo (Premio Anticipado) es el 15 de agosto de 2026. El Premio Mayor se sortea el 29 de agosto de 2026. ¡Todavía estás a tiempo de participar!",
     },
     {
       q: "¿Cómo sabré si gané?",

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     `*Tu número: ${numStr}*\n\n` +
     `De todos los que quisieron participar, tú lo hiciste — y eso ya te pone un paso adelante. ` +
     `Cada boleta tiene exactamente las mismas posibilidades, y la tuya está en el juego.\n\n` +
-    `✈️ Un viaje a *Cancún* o a *Cartagena* puede ser tuyo el *11 de julio*. ` +
+    `✈️ Un viaje a *Cancún* o a *Cartagena* puede ser tuyo el *15 de agosto*. ` +
     `Guarda tu boleta, ese número puede cambiar tu historia.\n\n` +
     `¡Mucha suerte! 🍀 _Go Viaja Con Nosotros_`
 
