@@ -254,17 +254,28 @@ export function NumberSelector() {
       })
       const { integritySignature, apiKey } = await res.json()
 
-      // Abrir página de checkout propia con el botón oficial de Bold
-      const checkoutUrl = new URL("/checkout.html", window.location.origin)
-      checkoutUrl.searchParams.set("api_key", apiKey)
-      checkoutUrl.searchParams.set("order_id", orderReference)
-      checkoutUrl.searchParams.set("amount", String(amountInCents))
-      checkoutUrl.searchParams.set("currency", "COP")
-      checkoutUrl.searchParams.set("sig", integritySignature)
-      checkoutUrl.searchParams.set("redirect_url", `${window.location.origin}/pago-exitoso`)
+      // Cargar librería de Bold si no está cargada
+      await new Promise<void>((resolve, reject) => {
+        if ((window as any).BoldCheckout) { resolve(); return }
+        const s = document.createElement("script")
+        s.src = "https://checkout.bold.co/library/boldPaymentButton.js"
+        s.onload = () => resolve()
+        s.onerror = () => reject(new Error("No se pudo cargar Bold"))
+        document.head.appendChild(s)
+      })
 
-      // Navegar directo a checkout (popup bloqueaba cookies de Bold)
-      window.location.href = checkoutUrl.toString()
+      // Abrir checkout de Bold embebido directamente en la página
+      const checkout = new (window as any).BoldCheckout({
+        orderId: orderReference,
+        currency: "COP",
+        amount: String(amountInCents),
+        apiKey,
+        integritySignature,
+        description: "Boleta Go Viaja Con Nosotros 2026",
+        redirectionUrl: `${window.location.origin}/pago-exitoso`,
+        renderMode: "embedded",
+      })
+      checkout.open()
     } finally {
       setEnviando(false)
     }
