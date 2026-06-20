@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Geist } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -27,6 +28,9 @@ export default function RootLayout({
       lang="es"
       className={`${geistSans.variable} ${cormorant.variable} bg-background`}
     >
+      <head>
+        <Script src="https://checkout.bold.co/library/boldPaymentButton.js" strategy="beforeInteractive" />
+      </head>
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

@@ -254,18 +254,11 @@ export function NumberSelector() {
       })
       const { integritySignature, apiKey } = await res.json()
 
-      // Cargar librería de Bold si no está cargada
-      await new Promise<void>((resolve, reject) => {
-        if ((window as any).BoldCheckout) { resolve(); return }
-        const s = document.createElement("script")
-        s.src = "https://checkout.bold.co/library/boldPaymentButton.js"
-        s.onload = () => resolve()
-        s.onerror = () => reject(new Error("No se pudo cargar Bold"))
-        document.head.appendChild(s)
-      })
+      // Abrir checkout de Bold embebido (script cargado en layout.tsx)
+      const BoldCheckout = (window as any).BoldCheckout
+      if (!BoldCheckout) throw new Error("Bold no disponible")
 
-      // Abrir checkout de Bold embebido directamente en la página
-      const checkout = new (window as any).BoldCheckout({
+      const checkout = new BoldCheckout({
         orderId: orderReference,
         currency: "COP",
         amount: String(amountInCents),
