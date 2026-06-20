@@ -225,7 +225,7 @@ export function NumberSelector() {
     try {
       const cel = form.celular.replace(/\D/g, "")
       const orderReference = `GV-${cel}-${Date.now()}`
-      const amountInCents = total * 100
+      const amountInCents = total // Bold COP: monto sin decimales (25000 = $25.000 COP)
 
       // Guardar datos pendientes en Firebase (estado "A" = apartado, esperando pago)
       const db = dbRef.current
@@ -254,30 +254,17 @@ export function NumberSelector() {
       })
       const { integritySignature, apiKey } = await res.json()
 
-      // Redirigir al checkout de Bold
-      const boldUrl = new URL("https://checkout.bold.co/payment/order")
-      boldUrl.searchParams.set("api_key", apiKey)
-      boldUrl.searchParams.set("order_reference", orderReference)
-      boldUrl.searchParams.set("amount_in_cents", String(amountInCents))
-      boldUrl.searchParams.set("currency", "COP")
-      boldUrl.searchParams.set("integrity_signature", integritySignature)
-      boldUrl.searchParams.set("redirect_url", `${window.location.origin}/pago-exitoso?ref=${orderReference}`)
+      // Abrir página de checkout propia con el botón oficial de Bold
+      const checkoutUrl = new URL("/checkout.html", window.location.origin)
+      checkoutUrl.searchParams.set("api_key", apiKey)
+      checkoutUrl.searchParams.set("order_id", orderReference)
+      checkoutUrl.searchParams.set("amount", String(amountInCents))
+      checkoutUrl.searchParams.set("currency", "COP")
+      checkoutUrl.searchParams.set("sig", integritySignature)
+      checkoutUrl.searchParams.set("redirect_url", `${window.location.origin}/pago-exitoso`)
 
-      // Abrir Bold como popup centrado (modal nativo del navegador)
-      const w = 480, h = 720
-      const left = Math.max(0, Math.round((screen.width - w) / 2))
-      const top = Math.max(0, Math.round((screen.height - h) / 2))
-      const popup = window.open(
-        boldUrl.toString(),
-        "bold-checkout",
-        `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes`
-      )
-      if (popup) {
-        setBoldPopup(popup)
-      } else {
-        // Bloqueado por el navegador → redirigir normalmente
-        window.location.href = boldUrl.toString()
-      }
+      // Navegar directo a checkout (popup bloqueaba cookies de Bold)
+      window.location.href = checkoutUrl.toString()
     } finally {
       setEnviando(false)
     }

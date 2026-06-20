@@ -15,8 +15,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Llaves de Bold no configuradas" }, { status: 500 })
   }
 
-  // Firma requerida por Bold: SHA256(amount_in_cents + currency + order_reference + secret_key)
-  const raw = `${amountInCents}COP${orderReference}${secretKey}`
+  // Firma requerida por Bold: SHA256(order_id + amount + currency + secret_key)
+  const raw = `${orderReference}${amountInCents}COP${secretKey}`
   const integritySignature = createHash("sha256").update(raw).digest("hex")
 
   return NextResponse.json({ integritySignature, apiKey, orderReference, amountInCents })

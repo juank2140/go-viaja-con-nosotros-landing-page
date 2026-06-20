@@ -27,8 +27,9 @@ function format(n: number) { return n.toString().padStart(4, "0") }
 
 function PagoExitosoInner() {
   const params = useSearchParams()
-  const ref_code = params.get("ref") ?? ""
-  const bold_status = params.get("bold-order-status") ?? ""
+  // Bold redirige con ?bold-order-id=REF&bold-tx-status=approved
+  const ref_code = params.get("bold-order-id") ?? params.get("ref") ?? ""
+  const bold_status = params.get("bold-tx-status") ?? params.get("bold-order-status") ?? ""
 
   const [estado, setEstado] = useState<"cargando" | "exitoso" | "fallido" | "error">("cargando")
   const [nums, setNums] = useState<number[]>([])
