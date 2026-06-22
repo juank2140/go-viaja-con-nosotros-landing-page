@@ -21,22 +21,31 @@ export function MpCheckout({ amount, preferenceId, orderReference, publicKey, on
   }, [publicKey])
 
   async function handleSubmit(formData: any) {
-    const res = await fetch("/api/mp-pay", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token: formData.token,
-        paymentMethodId: formData.payment_method_id,
-        installments: formData.installments,
-        payer: formData.payer,
-        amount,
-        orderReference,
-      }),
-    })
-    const data = await res.json()
-    if (data.status === "approved") {
-      onSuccess(data.id)
-    } else {
+    try {
+      console.log("MP onSubmit formData:", JSON.stringify(formData, null, 2))
+      const res = await fetch("/api/mp-pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: formData.token,
+          paymentMethodId: formData.payment_method_id,
+          installments: formData.installments,
+          payer: formData.payer,
+          amount,
+          orderReference,
+        }),
+      })
+      const data = await res.json()
+      console.log("MP pay response:", JSON.stringify(data, null, 2))
+      if (data.status === "approved") {
+        onSuccess(data.id)
+      } else {
+        alert(`Estado del pago: ${data.status} — ${data.statusDetail ?? data.error ?? ""}`)
+        onError()
+      }
+    } catch (err) {
+      console.error("MP handleSubmit error:", err)
+      alert(`Error al procesar el pago: ${err}`)
       onError()
     }
   }
