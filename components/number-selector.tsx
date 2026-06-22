@@ -303,19 +303,25 @@ export function NumberSelector() {
     }
     await update(ref(db), extras)
 
-    const numerosStr = selected.map(format).join(", ")
-    const msg = encodeURIComponent(
-      `✅ *PAGO CONFIRMADO — ${cfgNombre}*\n\n` +
-      `🎟 Número${selected.length > 1 ? "s" : ""}: *${numerosStr}*\n` +
-      `👤 ${form.nombre.trim()}\n📞 ${cel}\n📍 ${form.ciudad.trim()}\n` +
-      `💰 $${total.toLocaleString("es-CO")}\n🔖 Ref: ${checkout.orderReference}\n\n_Pago confirmado por Mercado Pago_`
-    )
     playChime()
     setConfNums([...selected])
     setSelected([])
     setCheckout(null)
     setStep("confirm")
-    setTimeout(() => { window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank") }, 800)
+
+    // Enviar boleta por WhatsApp automáticamente a cada número comprado
+    selected.forEach((n) => {
+      fetch("/api/enviar-boleta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          numero: n,
+          nombre: form.nombre.trim(),
+          cel,
+          ciudad: form.ciudad.trim(),
+        }),
+      }).catch((err) => console.error("Error enviando boleta WA:", err))
+    })
   }
 
   return (
