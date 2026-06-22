@@ -207,28 +207,8 @@ export function NumberSelector() {
     try {
       const cel = form.celular.replace(/\D/g, "")
       const orderReference = `GV-${cel}-${Date.now()}`
-      const amountInCents = total // Bold COP: monto sin decimales (25000 = $25.000 COP)
 
-      // Guardar datos pendientes en Firebase (estado "A" = apartado, esperando pago)
-      const db = dbRef.current
-      if (!db) return
-      const evFecha = `${new Date().getDate().toString().padStart(2,"0")}/${(new Date().getMonth()+1).toString().padStart(2,"0")}/${new Date().getFullYear()}`
-      const pendingUpdates: Record<string, unknown> = {}
-      selected.forEach((n) => {
-        pendingUpdates[`sorteo/datos/${n}`] = {
-          estado: "A", nombre: form.nombre.trim(), cel,
-          ciudad: form.ciudad.trim(), abono: pu,
-          fechaReserva: new Date().toISOString(), origen: "web",
-          orderReference,
-        }
-      })
-      pendingUpdates[`sorteo/pendientes/${orderReference}`] = {
-        nums: selected, nombre: form.nombre.trim(), cel,
-        ciudad: form.ciudad.trim(), total, fecha: evFecha,
-      }
-      await update(ref(db), pendingUpdates)
-
-      // Crear preferencia de Mercado Pago
+      // Crear preferencia de Mercado Pago (sin tocar Firebase hasta confirmar pago)
       const res = await fetch("/api/mp-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
