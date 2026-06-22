@@ -22,15 +22,16 @@ export function MpCheckout({ amount, preferenceId, orderReference, publicKey, on
 
   async function handleSubmit(formData: any) {
     try {
-      console.log("MP onSubmit formData:", JSON.stringify(formData, null, 2))
+      // El Brick anida los datos dentro de formData.formData
+      const fd = formData.formData ?? formData
       const res = await fetch("/api/mp-pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token: formData.token,
-          paymentMethodId: formData.payment_method_id,
-          installments: formData.installments,
-          payer: formData.payer,
+          token: fd.token,
+          paymentMethodId: fd.payment_method_id,
+          installments: fd.installments ?? 1,
+          payer: fd.payer,
           amount,
           orderReference,
         }),
