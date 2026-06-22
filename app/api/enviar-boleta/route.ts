@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   if (!imgJson.success) {
     return NextResponse.json({ error: "ImgBB falló", detail: imgJson }, { status: 500 })
   }
-  const imageUrl: string = imgJson.data.url
+  const imageUrl: string = imgJson.data.display_url ?? imgJson.data.url
 
   // 4. Enviar imagen por WhatsApp
   await fetch(WA_URL, {
