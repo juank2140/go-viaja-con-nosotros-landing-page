@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Search, X } from "lucide-react"
 import { initializeApp, getApps } from "firebase/app"
-import { getDatabase, ref, onValue, update } from "firebase/database"
+import { getDatabase, ref, onValue, update, runTransaction } from "firebase/database"
 import { MpCheckout } from "@/components/mp-checkout"
 
 const FB_CONFIG = {
@@ -260,23 +260,49 @@ export function NumberSelector() {
     const cel = form.celular.replace(/\D/g, "")
     const evFecha = `${new Date().getDate().toString().padStart(2,"0")}/${(new Date().getMonth()+1).toString().padStart(2,"0")}/${new Date().getFullYear()}`
     const pu = precioUnitario(selected.length)
-    const updates: Record<string, unknown> = {}
-    selected.forEach((n) => {
-      updates[`sorteo/banco/${n}`] = "P"
-      updates[`sorteo/datos/${n}`] = {
-        estado: "P", nombre: form.nombre.trim(), cel,
-        ciudad: form.ciudad.trim(), abono: pu,
-        fechaPago: new Date().toISOString(), origen: "web",
-        orderReference: checkout.orderReference, paymentId,
-      }
-    })
-    updates[`sorteo/clientes/${cel}`] = {
+
+    // Reservar cada número atómicamente — si otro usuario ya lo tomó, abortar
+    const numerosConflicto: number[] = []
+    await Promise.all(
+      selected.map(async (n) => {
+        const result = await runTransaction(ref(db, `sorteo/datos/${n}`), (current) => {
+          // Si ya está pagado por otro (estado "P"), abortar transacción
+          if (current && current.estado === "P") return undefined
+          return {
+            estado: "P", nombre: form.nombre.trim(), cel,
+            ciudad: form.ciudad.trim(), abono: pu,
+            fechaPago: new Date().toISOString(), origen: "web",
+            orderReference: checkout.orderReference, paymentId,
+          }
+        })
+        if (!result.committed) numerosConflicto.push(n)
+      })
+    )
+
+    if (numerosConflicto.length > 0) {
+      // Algunos números ya fueron tomados — notificar al admin y al cliente
+      const msg = encodeURIComponent(
+        `⚠️ *CONFLICTO DE NÚMERO — ${cfgNombre}*\n\n` +
+        `Los números ${numerosConflicto.map(format).join(", ")} ya fueron tomados por otro usuario al mismo tiempo.\n` +
+        `👤 ${form.nombre.trim()}\n📞 ${cel}\n🔖 Ref: ${checkout.orderReference}\n💰 Pago ID: ${paymentId}\n\n` +
+        `_Por favor contáctalo para reasignar o reembolsar._`
+      )
+      setCheckout(null)
+      alert(`Los números ${numerosConflicto.map(format).join(", ")} fueron tomados por otra persona en el mismo momento. Contacta al administrador con tu comprobante de pago.`)
+      setTimeout(() => { window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank") }, 500)
+      return
+    }
+
+    // Actualizar banco y cliente (sin transacción, ya que los datos ya están en sorteo/datos)
+    const extras: Record<string, unknown> = {}
+    selected.forEach((n) => { extras[`sorteo/banco/${n}`] = "P" })
+    extras[`sorteo/clientes/${cel}`] = {
       nombre: form.nombre.trim(), cel, ciudad: form.ciudad.trim(),
       depto: "", dir: "", fechaRegistro: evFecha,
       eventos: [{ evento: cfgNombre, fecha: evFecha, nums: selected }],
     }
-    updates[`sorteo/pendientes/${checkout.orderReference}`] = null
-    await update(ref(db), updates)
+    await update(ref(db), extras)
+
     const numerosStr = selected.map(format).join(", ")
     const msg = encodeURIComponent(
       `✅ *PAGO CONFIRMADO — ${cfgNombre}*\n\n` +
