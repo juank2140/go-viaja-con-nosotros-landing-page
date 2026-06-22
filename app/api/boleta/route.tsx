@@ -17,12 +17,12 @@ export async function GET(req: Request) {
           src={`${origin}/ticket.png`}
           style={{ position: "absolute", top: 0, left: 0, width: 941, height: 1672 }}
         />
-        {/* Número — center en x=680, y=262 (Canvas baseline) */}
+        {/* Número — dentro del recuadro dorado "NÚMERO DE BOLETA" */}
         <div style={{
           position: "absolute",
-          top: 210,
-          left: 505,
-          width: 350,
+          top: 338,
+          left: 450,
+          width: 460,
           display: "flex",
           justifyContent: "center",
           fontSize: 52,
@@ -31,16 +31,16 @@ export async function GET(req: Request) {
         }}>
           {numStr}
         </div>
-        {/* Nombre — x=245, y=1110 */}
-        <div style={{ position: "absolute", top: 1088, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        {/* Nombre */}
+        <div style={{ position: "absolute", top: 1100, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {nombre}
         </div>
-        {/* Celular — x=245, y=1162 */}
-        <div style={{ position: "absolute", top: 1140, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        {/* Celular */}
+        <div style={{ position: "absolute", top: 1152, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {cel}
         </div>
-        {/* Ciudad — x=245, y=1214 */}
-        <div style={{ position: "absolute", top: 1192, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        {/* Ciudad */}
+        <div style={{ position: "absolute", top: 1204, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {ciudad}
         </div>
       </div>
