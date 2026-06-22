@@ -27,9 +27,9 @@ function format(n: number) { return n.toString().padStart(4, "0") }
 
 function PagoExitosoInner() {
   const params = useSearchParams()
-  // Bold redirige con ?bold-order-id=REF&bold-tx-status=approved
-  const ref_code = params.get("bold-order-id") ?? params.get("ref") ?? ""
-  const bold_status = params.get("bold-tx-status") ?? params.get("bold-order-status") ?? ""
+  // Mercado Pago redirige con ?external_reference=REF&collection_status=approved
+  const ref_code = params.get("external_reference") ?? params.get("ref") ?? ""
+  const bold_status = params.get("collection_status") ?? params.get("status") ?? ""
 
   const [estado, setEstado] = useState<"cargando" | "exitoso" | "fallido" | "error">("cargando")
   const [nums, setNums] = useState<number[]>([])

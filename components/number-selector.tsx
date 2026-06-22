@@ -4,9 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Search } from "lucide-react"
+import { Search, X } from "lucide-react"
 import { initializeApp, getApps } from "firebase/app"
 import { getDatabase, ref, onValue, update } from "firebase/database"
+import { MpCheckout } from "@/components/mp-checkout"
 
 const FB_CONFIG = {
   apiKey: "AIzaSyAB5GIpefHLButGqp1FZz-Vag1IzTp7EdI",
@@ -60,18 +61,8 @@ function playChime() {
 
 type NumEstado = "L" | "A" | "P"
 
-// ── Botón Bold ─────────────────────────────────────────────
-function BoldLogo() {
-  return (
-    <img
-      src="/logo bold.png"
-      alt="Bold"
-      style={{ height: 22, width: "auto", filter: "brightness(0) invert(1)" }}
-    />
-  )
-}
-
-function BoldButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
+// ── Botón Mercado Pago ─────────────────────────────────────
+function MPButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
   return (
     <button
       onClick={onClick}
@@ -80,13 +71,14 @@ function BoldButton({ onClick, disabled }: { onClick: () => void; disabled: bool
       style={{
         background: disabled
           ? "rgba(255,255,255,0.08)"
-          : "linear-gradient(135deg, #1a1f5e 0%, #6b21a8 50%, #dc2626 100%)",
-        boxShadow: disabled ? "none" : "0 8px 32px rgba(107,33,168,0.35)",
+          : "linear-gradient(135deg, #009ee3 0%, #00b1ea 100%)",
+        boxShadow: disabled ? "none" : "0 8px 32px rgba(0,158,227,0.35)",
       }}
     >
       <span className="flex items-center justify-center gap-2.5 px-6 h-full">
-        <span className="text-white text-base font-semibold tracking-wide opacity-90">Pagar con</span>
-        <BoldLogo />
+        <span className="text-white text-base font-semibold tracking-wide">
+          {disabled ? "Procesando..." : "Pagar con Mercado Pago"}
+        </span>
       </span>
     </button>
   )
@@ -139,22 +131,12 @@ export function NumberSelector() {
   const [step, setStep] = useState<"select" | "confirm">("select")
   const [confNums, setConfNums] = useState<number[]>([])
   const [enviando, setEnviando] = useState(false)
-  const [boldPopup, setBoldPopup] = useState<Window | null>(null)
+  const [checkout, setCheckout] = useState<{
+    preferenceId: string
+    orderReference: string
+    publicKey: string
+  } | null>(null)
   const dbRef = useRef<ReturnType<typeof getDatabase> | null>(null)
-
-  // Escuchar mensaje de éxito desde el popup de Bold
-  useEffect(() => {
-    function onMessage(e: MessageEvent) {
-      if (e.data?.type === "BOLD_PAGO_OK" && e.data?.nums) {
-        setConfNums(e.data.nums)
-        setSelected([])
-        setStep("confirm")
-        setBoldPopup(null)
-      }
-    }
-    window.addEventListener("message", onMessage)
-    return () => window.removeEventListener("message", onMessage)
-  }, [])
 
   useEffect(() => {
     const db = getFirebaseDB()
@@ -246,29 +228,22 @@ export function NumberSelector() {
       }
       await update(ref(db), pendingUpdates)
 
-      // Obtener firma de Bold desde el servidor
-      const res = await fetch("/api/bold-order", {
+      // Crear preferencia de Mercado Pago
+      const res = await fetch("/api/mp-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderReference, amountInCents }),
+        body: JSON.stringify({
+          orderReference,
+          total,
+          nombre: form.nombre.trim(),
+          cel,
+        }),
       })
-      const { integritySignature, apiKey } = await res.json()
+      const { preferenceId, publicKey } = await res.json()
+      if (!preferenceId) throw new Error("No se pudo crear el pago")
 
-      // Abrir checkout de Bold embebido (script cargado en layout.tsx)
-      const BoldCheckout = (window as any).BoldCheckout
-      if (!BoldCheckout) throw new Error("Bold no disponible")
-
-      const checkout = new BoldCheckout({
-        orderId: orderReference,
-        currency: "COP",
-        amount: String(amountInCents),
-        apiKey,
-        integritySignature,
-        description: "Boleta Go Viaja Con Nosotros 2026",
-        redirectionUrl: `${window.location.origin}/pago-exitoso`,
-        renderMode: "embedded",
-      })
-      checkout.open()
+      // Mostrar Brick de pago embebido
+      setCheckout({ preferenceId, orderReference, publicKey })
     } finally {
       setEnviando(false)
     }
@@ -299,7 +274,73 @@ export function NumberSelector() {
     )
   }
 
+  async function handlePagoExitoso(paymentId: number) {
+    const db = dbRef.current
+    if (!db || !checkout) return
+    const cel = form.celular.replace(/\D/g, "")
+    const evFecha = `${new Date().getDate().toString().padStart(2,"0")}/${(new Date().getMonth()+1).toString().padStart(2,"0")}/${new Date().getFullYear()}`
+    const pu = precioUnitario(selected.length)
+    const updates: Record<string, unknown> = {}
+    selected.forEach((n) => {
+      updates[`sorteo/banco/${n}`] = "P"
+      updates[`sorteo/datos/${n}`] = {
+        estado: "P", nombre: form.nombre.trim(), cel,
+        ciudad: form.ciudad.trim(), abono: pu,
+        fechaPago: new Date().toISOString(), origen: "web",
+        orderReference: checkout.orderReference, paymentId,
+      }
+    })
+    updates[`sorteo/clientes/${cel}`] = {
+      nombre: form.nombre.trim(), cel, ciudad: form.ciudad.trim(),
+      depto: "", dir: "", fechaRegistro: evFecha,
+      eventos: [{ evento: cfgNombre, fecha: evFecha, nums: selected }],
+    }
+    updates[`sorteo/pendientes/${checkout.orderReference}`] = null
+    await update(ref(db), updates)
+    const numerosStr = selected.map(format).join(", ")
+    const msg = encodeURIComponent(
+      `✅ *PAGO CONFIRMADO — ${cfgNombre}*\n\n` +
+      `🎟 Número${selected.length > 1 ? "s" : ""}: *${numerosStr}*\n` +
+      `👤 ${form.nombre.trim()}\n📞 ${cel}\n📍 ${form.ciudad.trim()}\n` +
+      `💰 $${total.toLocaleString("es-CO")}\n🔖 Ref: ${checkout.orderReference}\n\n_Pago confirmado por Mercado Pago_`
+    )
+    playChime()
+    setConfNums([...selected])
+    setSelected([])
+    setCheckout(null)
+    setStep("confirm")
+    setTimeout(() => { window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank") }, 800)
+  }
+
   return (
+    <>
+    {checkout && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div className="relative w-full max-w-lg rounded-3xl bg-background border border-gold/20 shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
+          <button
+            onClick={() => setCheckout(null)}
+            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="size-5" />
+          </button>
+          <h3 className="font-heading text-xl font-semibold text-foreground mb-1">Completa tu pago</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            {selected.length} boleta{selected.length > 1 ? "s" : ""} · <span className="text-gold font-semibold">${total.toLocaleString("es-CO")}</span>
+          </p>
+          <MpCheckout
+            amount={total}
+            preferenceId={checkout.preferenceId}
+            orderReference={checkout.orderReference}
+            publicKey={checkout.publicKey}
+            onSuccess={handlePagoExitoso}
+            onError={() => {
+              setCheckout(null)
+              alert("Hubo un error procesando el pago. Intenta de nuevo.")
+            }}
+          />
+        </div>
+      </div>
+    )}
     <section id="numeros" className="px-4 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 text-center">
@@ -406,7 +447,7 @@ export function NumberSelector() {
                 ${total.toLocaleString("es-CO")}
               </span>
             </div>
-            <BoldButton onClick={handlePagar} disabled={selected.length === 0 || enviando} />
+            <MPButton onClick={handlePagar} disabled={selected.length === 0 || enviando} />
             {enviando && (
               <p className="mt-2 text-center text-xs text-muted-foreground animate-pulse">
                 ✉️ Enviando tu boleta por WhatsApp...
@@ -417,5 +458,6 @@ export function NumberSelector() {
         </div>
       </div>
     </section>
+    </>
   )
 }
