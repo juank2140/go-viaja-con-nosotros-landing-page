@@ -10,22 +10,41 @@ export async function GET(req: Request) {
   const ciudad = searchParams.get("ciudad") ?? "—"
   const numStr = String(numero).padStart(4, "0")
 
-  const W = 470
-  const H = 836
   return new ImageResponse(
     (
-      <div style={{ position: "relative", width: W, height: H, display: "flex" }}>
-        <img src={`${origin}/ticket.png`} style={{ position: "absolute", top: 0, left: 0, width: W, height: H }} />
+      <div style={{ position: "relative", width: 941, height: 1672, display: "flex" }}>
+        <img
+          src={`${origin}/ticket.png`}
+          style={{ position: "absolute", top: 0, left: 0, width: 941, height: 1672 }}
+        />
+        {/* Número — center en x=680, y=262 (Canvas baseline) */}
         <div style={{
-          position: "absolute", top: 155, left: 150, width: 340,
-          display: "flex", justifyContent: "center",
-          fontSize: 29, fontWeight: 900, color: "#5a3e00", letterSpacing: 3,
-        }}>{numStr}</div>
-        <div style={{ position: "absolute", top: 543, left: 122, fontSize: 11, fontWeight: 700, color: "#1A1208" }}>{nombre}</div>
-        <div style={{ position: "absolute", top: 568, left: 122, fontSize: 11, fontWeight: 700, color: "#1A1208" }}>{cel}</div>
-        <div style={{ position: "absolute", top: 593, left: 122, fontSize: 11, fontWeight: 700, color: "#1A1208" }}>{ciudad}</div>
+          position: "absolute",
+          top: 210,
+          left: 505,
+          width: 350,
+          display: "flex",
+          justifyContent: "center",
+          fontSize: 52,
+          fontWeight: 900,
+          color: "#8B6914",
+        }}>
+          {numStr}
+        </div>
+        {/* Nombre — x=245, y=1110 */}
+        <div style={{ position: "absolute", top: 1088, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+          {nombre}
+        </div>
+        {/* Celular — x=245, y=1162 */}
+        <div style={{ position: "absolute", top: 1140, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+          {cel}
+        </div>
+        {/* Ciudad — x=245, y=1214 */}
+        <div style={{ position: "absolute", top: 1192, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+          {ciudad}
+        </div>
       </div>
     ),
-    { width: W, height: H }
+    { width: 941, height: 1672 }
   )
 }

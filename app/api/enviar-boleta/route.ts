@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ to, text: texto }),
   })
 
-  // 2. Generar boleta en el servidor via /api/boleta
+  // 2. Generar boleta PNG desde /api/boleta
   const origin = new URL(req.url).origin
   const boletaUrl = `${origin}/api/boleta?n=${numero}&nombre=${encodeURIComponent(nombre)}&cel=${encodeURIComponent(celLimpio)}&ciudad=${encodeURIComponent(ciudad)}`
   const boletaRes = await fetch(boletaUrl)
@@ -48,23 +48,19 @@ export async function POST(req: NextRequest) {
   const pngBuffer = await boletaRes.arrayBuffer()
   const base64 = Buffer.from(pngBuffer).toString("base64")
 
-  // 3. Subir imagen a WaSender directamente (más confiable que ImgBB para WhatsApp)
-  const uploadRes = await fetch("https://www.wasenderapi.com/api/upload", {
+  // 3. Subir imagen a ImgBB
+  const form = new FormData()
+  form.append("image", base64)
+  form.append("name", `boleta-${numStr}`)
+  const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + WASENDER_TOKEN,
-    },
-    body: JSON.stringify({
-      base64: `data:image/png;base64,${base64}`,
-      mimetype: "image/png",
-    }),
+    body: form,
   })
-  const uploadJson = await uploadRes.json()
-  if (!uploadJson.success) {
-    return NextResponse.json({ error: "WaSender upload falló", detail: uploadJson }, { status: 500 })
+  const imgJson = await imgRes.json()
+  if (!imgJson.success) {
+    return NextResponse.json({ error: "ImgBB falló", detail: imgJson }, { status: 500 })
   }
-  const imageUrl: string = uploadJson.publicUrl
+  const imageUrl: string = imgJson.data.image?.url ?? imgJson.data.display_url ?? imgJson.data.url
 
   // 4. Enviar imagen por WhatsApp
   await fetch(WA_URL, {
