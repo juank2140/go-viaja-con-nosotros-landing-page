@@ -20,7 +20,7 @@ export async function GET(req: Request) {
         {/* Número — centrado en recuadro plateado (X:405-875, Y:245-315) */}
         <div style={{
           position: "absolute",
-          top: 280,
+          top: 340,
           left: 405,
           width: 470,
           height: 70,
@@ -34,15 +34,15 @@ export async function GET(req: Request) {
           {numStr}
         </div>
         {/* Nombre */}
-        <div style={{ position: "absolute", top: 1060, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        <div style={{ position: "absolute", top: 1140, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {nombre}
         </div>
         {/* Celular */}
-        <div style={{ position: "absolute", top: 1110, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        <div style={{ position: "absolute", top: 1190, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {cel}
         </div>
         {/* Ciudad */}
-        <div style={{ position: "absolute", top: 1160, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        <div style={{ position: "absolute", top: 1240, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {ciudad}
         </div>
       </div>
