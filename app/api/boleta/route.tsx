@@ -20,7 +20,7 @@ export async function GET(req: Request) {
         {/* Número — centrado en recuadro plateado (X:405-875, Y:245-315) */}
         <div style={{
           position: "absolute",
-          top: 340,
+          top: 320,
           left: 405,
           width: 470,
           height: 70,
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
           {cel}
         </div>
         {/* Ciudad */}
-        <div style={{ position: "absolute", top: 1240, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        <div style={{ position: "absolute", top: 1220, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {ciudad}
         </div>
       </div>
