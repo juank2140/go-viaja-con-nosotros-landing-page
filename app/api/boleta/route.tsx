@@ -34,7 +34,7 @@ export async function GET(req: Request) {
           {numStr}
         </div>
         {/* Nombre */}
-        <div style={{ position: "absolute", top: 1140, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        <div style={{ position: "absolute", top: 1155, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {nombre}
         </div>
         {/* Celular */}
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
           {cel}
         </div>
         {/* Ciudad */}
-        <div style={{ position: "absolute", top: 1220, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        <div style={{ position: "absolute", top: 1235, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {ciudad}
         </div>
       </div>
