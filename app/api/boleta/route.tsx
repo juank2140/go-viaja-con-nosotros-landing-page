@@ -17,13 +17,13 @@ export async function GET(req: Request) {
           src={`${origin}/ticket.png`}
           style={{ position: "absolute", top: 0, left: 0, width: 941, height: 1672 }}
         />
-        {/* Número — centrado en recuadro dorado (X:440-879, Y:320-430) */}
+        {/* Número — centrado en recuadro plateado (X:405-875, Y:245-315) */}
         <div style={{
           position: "absolute",
-          top: 335,
-          left: 440,
-          width: 439,
-          height: 80,
+          top: 245,
+          left: 405,
+          width: 470,
+          height: 70,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -33,16 +33,16 @@ export async function GET(req: Request) {
         }}>
           {numStr}
         </div>
-        {/* Nombre — row 1 (zona y=1065-1121, center=1093) */}
-        <div style={{ position: "absolute", top: 1082, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        {/* Nombre */}
+        <div style={{ position: "absolute", top: 1025, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {nombre}
         </div>
-        {/* Celular — row 2 (zona y=1121-1177, center=1149) */}
-        <div style={{ position: "absolute", top: 1138, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        {/* Celular */}
+        <div style={{ position: "absolute", top: 1075, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {cel}
         </div>
-        {/* Ciudad — row 3 */}
-        <div style={{ position: "absolute", top: 1182, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
+        {/* Ciudad */}
+        <div style={{ position: "absolute", top: 1125, left: 245, fontSize: 21, fontWeight: 700, color: "#1A1208" }}>
           {ciudad}
         </div>
       </div>
