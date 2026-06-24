@@ -48,22 +48,42 @@ export async function POST(req: NextRequest) {
   const pngBuffer = await boletaRes.arrayBuffer()
   const base64 = Buffer.from(pngBuffer).toString("base64")
 
-  // 3. Subir imagen a ImgBB
-  const form = new FormData()
-  form.append("image", base64)
-  form.append("name", `boleta-${numStr}`)
-  const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+  // 3. Subir imagen a WaSender (CDN propio, URLs confiables para WhatsApp)
+  const uploadRes = await fetch("https://www.wasenderapi.com/api/upload", {
     method: "POST",
-    body: form,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + WASENDER_TOKEN,
+    },
+    body: JSON.stringify({
+      base64: `data:image/png;base64,${base64}`,
+      mimetype: "image/png",
+    }),
   })
-  const imgJson = await imgRes.json()
-  if (!imgJson.success) {
-    return NextResponse.json({ error: "ImgBB falló", detail: imgJson }, { status: 500 })
+  const uploadJson = await uploadRes.json()
+  console.log("WaSender upload response:", JSON.stringify(uploadJson))
+
+  if (!uploadJson.success && !uploadJson.publicUrl) {
+    // Fallback a ImgBB si WaSender upload falla
+    const form = new FormData()
+    form.append("image", base64)
+    const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: form })
+    const imgJson = await imgRes.json()
+    console.log("ImgBB fallback response:", JSON.stringify(imgJson))
+    const imageUrl = imgJson.data?.display_url ?? imgJson.data?.url ?? ""
+    const sendRes = await fetch(WA_URL, {
+      method: "POST", headers,
+      body: JSON.stringify({ to, imageUrl, text: `🎫 Boleta #${numStr} — Go Viaja Con Nosotros` }),
+    })
+    const sendJson = await sendRes.json()
+    console.log("WaSender send (ImgBB fallback):", JSON.stringify(sendJson))
+    return NextResponse.json({ ok: true, imageUrl, via: "imgbb" })
   }
-  const imageUrl: string = imgJson.data.image?.url ?? imgJson.data.display_url ?? imgJson.data.url
+
+  const imageUrl: string = uploadJson.publicUrl
 
   // 4. Enviar imagen por WhatsApp
-  await fetch(WA_URL, {
+  const sendRes = await fetch(WA_URL, {
     method: "POST",
     headers,
     body: JSON.stringify({
@@ -72,6 +92,8 @@ export async function POST(req: NextRequest) {
       text: `🎫 Boleta #${numStr} — Go Viaja Con Nosotros`,
     }),
   })
+  const sendJson = await sendRes.json()
+  console.log("WaSender send response:", JSON.stringify(sendJson))
 
-  return NextResponse.json({ ok: true, imageUrl })
+  return NextResponse.json({ ok: true, imageUrl, via: "wasender" })
 }
