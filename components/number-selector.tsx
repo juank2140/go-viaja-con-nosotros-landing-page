@@ -222,6 +222,16 @@ export function NumberSelector() {
       const { preferenceId, publicKey } = await res.json()
       if (!preferenceId) throw new Error("No se pudo crear el pago")
 
+      // Guardar selección en sessionStorage por si MP redirige (móvil)
+      sessionStorage.setItem(`mp_order_${orderReference}`, JSON.stringify({
+        nums: selected,
+        nombre: form.nombre.trim(),
+        cel,
+        ciudad: form.ciudad.trim(),
+        total,
+        pu,
+      }))
+
       // Mostrar Brick de pago embebido
       setCheckout({ preferenceId, orderReference, publicKey })
     } finally {

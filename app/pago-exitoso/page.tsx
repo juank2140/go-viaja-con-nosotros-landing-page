@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { initializeApp, getApps } from "firebase/app"
-import { getDatabase, ref, get, update } from "firebase/database"
+import { getDatabase, ref, runTransaction, update } from "firebase/database"
 
 const FB_CONFIG = {
   apiKey: "AIzaSyAB5GIpefHLButGqp1FZz-Vag1IzTp7EdI",
@@ -27,82 +27,97 @@ function format(n: number) { return n.toString().padStart(4, "0") }
 
 function PagoExitosoInner() {
   const params = useSearchParams()
-  // Mercado Pago redirige con ?external_reference=REF&collection_status=approved
-  const ref_code = params.get("external_reference") ?? params.get("ref") ?? ""
-  const bold_status = params.get("collection_status") ?? params.get("status") ?? ""
+  const orderReference = params.get("external_reference") ?? ""
+  const status = params.get("collection_status") ?? params.get("status") ?? ""
+  const paymentId = params.get("collection_id") ?? params.get("payment_id") ?? ""
 
-  const [estado, setEstado] = useState<"cargando" | "exitoso" | "fallido" | "error">("cargando")
+  const [estado, setEstado] = useState<"cargando" | "exitoso" | "fallido" | "error" | "ya_procesado">("cargando")
   const [nums, setNums] = useState<number[]>([])
   const [nombre, setNombre] = useState("")
 
   useEffect(() => {
-    if (!ref_code) { setEstado("error"); return }
+    if (!orderReference) { setEstado("error"); return }
 
     async function confirmar() {
-      const db = getDB()
-      const snap = await get(ref(db, `sorteo/pendientes/${ref_code}`))
-      if (!snap.exists()) { setEstado("error"); return }
+      // Leer datos guardados en sessionStorage por number-selector
+      const raw = sessionStorage.getItem(`mp_order_${orderReference}`)
+      if (!raw) {
+        // Si no hay sessionStorage (otra pestaña, otro dispositivo), mostrar error con soporte
+        setEstado("error")
+        return
+      }
 
-      const data = snap.val()
-      const numeros: number[] = data.nums
-      const cel: string = data.cel
-      const nombreCliente: string = data.nombre
-      const ciudad: string = data.ciudad
-      const total: number = data.total
-      const fecha: string = data.fecha
+      const { nums: numeros, nombre: nombreCliente, cel, ciudad, pu } = JSON.parse(raw) as {
+        nums: number[]; nombre: string; cel: string; ciudad: string; total: number; pu: number
+      }
 
       setNombre(nombreCliente)
       setNums(numeros)
 
-      if (bold_status !== "approved") {
-        const rollback: Record<string, unknown> = {}
-        numeros.forEach((n) => { rollback[`sorteo/datos/${n}/estado`] = "L" })
-        await update(ref(db), rollback)
+      if (status !== "approved") {
         setEstado("fallido")
         return
       }
 
-      const pu = numeros.length >= 2 ? 20000 : 25000
-      const updates: Record<string, unknown> = {}
-      numeros.forEach((n) => {
-        updates[`sorteo/banco/${n}`] = "P"
-        updates[`sorteo/datos/${n}`] = {
-          estado: "P", nombre: nombreCliente, cel, ciudad,
-          abono: pu, fechaPago: new Date().toISOString(),
-          origen: "web", orderReference: ref_code,
-        }
+      const db = getDB()
+      const fecha = `${new Date().getDate().toString().padStart(2, "0")}/${(new Date().getMonth() + 1).toString().padStart(2, "0")}/${new Date().getFullYear()}`
+
+      // Reservar cada número atómicamente con runTransaction
+      const conflictos: number[] = []
+      await Promise.all(
+        numeros.map(async (n) => {
+          const result = await runTransaction(ref(db, `sorteo/datos/${n}`), (current) => {
+            if (current && current.estado === "P") return undefined
+            return {
+              estado: "P", nombre: nombreCliente, cel, ciudad,
+              abono: pu, fechaPago: new Date().toISOString(),
+              origen: "web", orderReference, paymentId,
+            }
+          })
+          if (!result.committed) conflictos.push(n)
+        })
+      )
+
+      // Actualizar banco y cliente
+      const extras: Record<string, unknown> = {}
+      numeros.filter(n => !conflictos.includes(n)).forEach((n) => {
+        extras[`sorteo/banco/${n}`] = "P"
       })
-      updates[`sorteo/clientes/${cel}`] = {
+      extras[`sorteo/clientes/${cel}`] = {
         nombre: nombreCliente, cel, ciudad,
         depto: "", dir: "", fechaRegistro: fecha,
         eventos: [{ evento: SORTEO_NOMBRE, fecha, nums: numeros }],
       }
-      updates[`sorteo/pendientes/${ref_code}`] = null
+      await update(ref(db), extras)
 
-      await update(ref(db), updates)
+      // Limpiar sessionStorage
+      sessionStorage.removeItem(`mp_order_${orderReference}`)
 
-      const numerosStr = numeros.map(format).join(", ")
-      const totalStr = "$" + total.toLocaleString("es-CO")
-      const msg = encodeURIComponent(
-        `✅ *PAGO CONFIRMADO — ${SORTEO_NOMBRE}*\n\n` +
-        `🎟 Número${numeros.length > 1 ? "s" : ""}: *${numerosStr}*\n` +
-        `👤 ${nombreCliente}\n📞 ${cel}\n📍 ${ciudad}\n` +
-        `💰 ${totalStr}\n🔖 Ref: ${ref_code}\n\n_Pago confirmado por Bold_`
-      )
-      setTimeout(() => { window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank") }, 1000)
+      // Enviar boleta por WhatsApp a cada número
+      numeros.forEach((n) => {
+        fetch("/api/enviar-boleta", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ numero: n, nombre: nombreCliente, cel, ciudad }),
+        }).catch(() => {})
+      })
 
-      // Si estamos en popup, notificar al padre y cerrar
-      if (window.opener && !window.opener.closed) {
-        window.opener.postMessage({ type: "BOLD_PAGO_OK", nums: numeros }, window.location.origin)
-        setTimeout(() => window.close(), 800)
-        return
+      if (conflictos.length > 0) {
+        const msg = encodeURIComponent(
+          `⚠️ *CONFLICTO DE NÚMERO — ${SORTEO_NOMBRE}*\n\n` +
+          `Números ya tomados: ${conflictos.map(format).join(", ")}\n` +
+          `👤 ${nombreCliente}\n📞 ${cel}\n🔖 Ref: ${orderReference}\n\n` +
+          `_Contactar para reasignar o reembolsar._`
+        )
+        setTimeout(() => { window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank") }, 500)
       }
 
       setEstado("exitoso")
     }
 
     confirmar()
-  }, [ref_code, bold_status])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (estado === "cargando") return (
     <main className="min-h-screen flex items-center justify-center bg-background">
@@ -124,8 +139,10 @@ function PagoExitosoInner() {
   if (estado === "error") return (
     <main className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background px-4 text-center">
       <div className="text-5xl">⚠️</div>
-      <h1 className="font-heading text-3xl font-semibold text-foreground">Referencia no encontrada</h1>
-      <p className="text-muted-foreground">Contacta al administrador con tu comprobante de Bold.</p>
+      <h1 className="font-heading text-3xl font-semibold text-foreground">Sesión no encontrada</h1>
+      <p className="text-muted-foreground max-w-sm">
+        Si completaste el pago, contáctanos con tu comprobante de Mercado Pago y te asignamos tu número.
+      </p>
       <a href={`https://wa.me/${WA_ADMIN}`} className="mt-4 rounded-full bg-gold px-6 py-3 font-semibold text-gold-foreground">
         Contactar soporte
       </a>
