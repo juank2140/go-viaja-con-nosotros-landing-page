@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
+export const maxDuration = 60
+
 const WASENDER_TOKEN = process.env.WASENDER_TOKEN!
 const IMGBB_KEY = process.env.IMGBB_KEY!
 const WA_URL = "https://www.wasenderapi.com/api/send-message"
@@ -20,8 +22,6 @@ export async function POST(req: NextRequest) {
     "Content-Type": "application/json",
     Authorization: "Bearer " + WASENDER_TOKEN,
   }
-
-  const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
 
   // 1. Mensaje de texto
   const texto =
@@ -49,9 +49,6 @@ export async function POST(req: NextRequest) {
   }
   const pngBuffer = await boletaRes.arrayBuffer()
   const base64 = Buffer.from(pngBuffer).toString("base64")
-
-  // Esperar 6s entre mensajes (Account Protection: 1 msg cada 5s)
-  await delay(6000)
 
   // 3. Subir imagen a WaSender (CDN propio, URLs confiables para WhatsApp)
   const uploadRes = await fetch("https://www.wasenderapi.com/api/upload", {
