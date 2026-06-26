@@ -136,6 +136,7 @@ export function NumberSelector() {
     orderReference: string
     publicKey: string
   } | null>(null)
+  const [conflicto, setConflicto] = useState<{ nums: number[]; waMsg: string } | null>(null)
   const dbRef = useRef<ReturnType<typeof getDatabase> | null>(null)
 
   useEffect(() => {
@@ -239,6 +240,41 @@ export function NumberSelector() {
     }
   }
 
+  if (conflicto) {
+    return (
+      <section id="numeros" className="px-4 py-20 sm:py-28">
+        <div className="mx-auto max-w-md text-center">
+          <div className="text-6xl mb-4">😔</div>
+          <h2 className="font-heading text-3xl font-semibold text-foreground mb-3">Tu pago fue recibido</h2>
+          <p className="text-muted-foreground mb-6">
+            Sin embargo, {conflicto.nums.length === 1 ? "el número" : "los números"}{" "}
+            <span className="text-gold font-semibold">{conflicto.nums.map(format).join(", ")}</span>{" "}
+            {conflicto.nums.length === 1 ? "fue tomado" : "fueron tomados"} por otra persona en el mismo instante que tú compraste.
+          </p>
+          <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-5 py-4 mb-6 text-left">
+            <p className="text-sm font-semibold text-amber-400 mb-1">¿Qué pasa ahora?</p>
+            <p className="text-sm text-muted-foreground">
+              Tu dinero está seguro. Escríbenos por WhatsApp y te ayudamos a <span className="text-white font-medium">reasignarte un número diferente o hacer el reembolso</span>, lo que prefieras.
+            </p>
+          </div>
+          <a
+            href={`https://wa.me/${WA_ADMIN}?text=${conflicto.waMsg}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full h-14 rounded-full font-semibold text-white mb-4"
+            style={{ background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)", boxShadow: "0 8px 32px rgba(37,211,102,0.35)" }}
+          >
+            <svg viewBox="0 0 24 24" className="size-5 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.554 4.122 1.524 5.855L.057 23.203a.75.75 0 0 0 .916.916l5.348-1.467A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.722 9.722 0 0 1-4.964-1.362l-.356-.211-3.695 1.013 1.013-3.695-.211-.356A9.722 9.722 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+            Contactar soporte por WhatsApp
+          </a>
+          <Button variant="outline" className="w-full rounded-full bg-transparent" onClick={() => { setConflicto(null); setSelected([]) }}>
+            Elegir otros números
+          </Button>
+        </div>
+      </section>
+    )
+  }
+
   if (step === "confirm") {
     const numsStr = confNums.map(format).join(", ")
     const waText = encodeURIComponent(`Hola, soy ${form.nombre.trim()} y compré ${confNums.length === 1 ? "la boleta" : "las boletas"} ${numsStr}`)
@@ -311,16 +347,12 @@ export function NumberSelector() {
     )
 
     if (numerosConflicto.length > 0) {
-      // Algunos números ya fueron tomados — notificar al admin y al cliente
-      const msg = encodeURIComponent(
-        `⚠️ *CONFLICTO DE NÚMERO — ${cfgNombre}*\n\n` +
-        `Los números ${numerosConflicto.map(format).join(", ")} ya fueron tomados por otro usuario al mismo tiempo.\n` +
-        `👤 ${form.nombre.trim()}\n📞 ${cel}\n🔖 Ref: ${checkout.orderReference}\n💰 Pago ID: ${paymentId}\n\n` +
-        `_Por favor contáctalo para reasignar o reembolsar._`
+      const waMsg = encodeURIComponent(
+        `⚠️ Hola, soy ${form.nombre.trim()} y acabo de pagar pero los números ${numerosConflicto.map(format).join(", ")} ya estaban tomados.\n` +
+        `📞 ${cel}\n🔖 Ref: ${checkout.orderReference}\n\n_Necesito ayuda para que me reasignen o me reembolsen._`
       )
       setCheckout(null)
-      alert(`Los números ${numerosConflicto.map(format).join(", ")} fueron tomados por otra persona en el mismo momento. Contacta al administrador con tu comprobante de pago.`)
-      setTimeout(() => { window.open(`https://wa.me/${WA_ADMIN}?text=${msg}`, "_blank") }, 500)
+      setConflicto({ nums: numerosConflicto, waMsg })
       return
     }
 
