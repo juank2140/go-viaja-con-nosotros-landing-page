@@ -93,15 +93,6 @@ function PagoExitosoInner() {
       // Limpiar sessionStorage
       sessionStorage.removeItem(`mp_order_${orderReference}`)
 
-      // Enviar boleta por WhatsApp a cada número
-      numeros.forEach((n) => {
-        fetch("/api/enviar-boleta", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ numero: n, nombre: nombreCliente, cel, ciudad }),
-        }).catch(() => {})
-      })
-
       if (conflictos.length > 0) {
         const msg = encodeURIComponent(
           `⚠️ *CONFLICTO DE NÚMERO — ${SORTEO_NOMBRE}*\n\n` +
@@ -149,22 +140,40 @@ function PagoExitosoInner() {
     </main>
   )
 
+  const numsStr = nums.map(format).join(", ")
+  const waText = encodeURIComponent(`Hola, soy ${nombre} y compré ${nums.length === 1 ? "la boleta" : "las boletas"} ${numsStr}`)
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center gap-6 bg-background px-4 text-center">
       <div className="text-6xl animate-bounce">🎉</div>
       <h1 className="font-heading text-4xl font-semibold text-foreground">
-        ¡Listo, {nombre}!
+        ¡Pago confirmado, {nombre}!
       </h1>
-      <p className="text-muted-foreground">Tu pago fue confirmado. Estos son tus números:</p>
-      <div className="flex flex-wrap gap-3 justify-center">
-        {nums.map((n) => (
-          <span key={n} className="font-heading text-3xl font-semibold text-gold tabular-nums">
-            {format(n)}
-          </span>
-        ))}
+      <p className="text-muted-foreground">Tu compra fue procesada exitosamente.</p>
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+          {nums.length === 1 ? "Tu número" : "Tus números"}
+        </p>
+        <div className="flex flex-wrap gap-3 justify-center mb-3">
+          {nums.map((n) => (
+            <span key={n} className="font-heading text-3xl font-semibold text-gold tabular-nums">
+              {format(n)}
+            </span>
+          ))}
+        </div>
+        <p className="text-sm text-muted-foreground">Guarda estos números — son tu participación oficial.</p>
       </div>
-      <p className="text-sm text-muted-foreground">Te enviamos tu boleta por WhatsApp.</p>
-      <a href="/" className="mt-2 rounded-full border border-gold/40 px-6 py-3 text-sm text-gold hover:bg-gold/10">
+      <a
+        href={`https://wa.me/${WA_ADMIN}?text=${waText}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 rounded-full px-8 py-4 font-semibold text-white"
+        style={{ background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)" }}
+      >
+        <svg viewBox="0 0 24 24" className="size-5 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.554 4.122 1.524 5.855L.057 23.203a.75.75 0 0 0 .916.916l5.348-1.467A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.722 9.722 0 0 1-4.964-1.362l-.356-.211-3.695 1.013 1.013-3.695-.211-.356A9.722 9.722 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+        Enviar mis boletas por WhatsApp
+      </a>
+      <a href="/" className="rounded-full border border-white/20 px-6 py-3 text-sm text-muted-foreground hover:bg-white/5">
         Volver al inicio
       </a>
     </main>
