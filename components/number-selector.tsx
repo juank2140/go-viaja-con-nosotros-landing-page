@@ -247,28 +247,36 @@ export function NumberSelector() {
         <div className="mx-auto max-w-md text-center">
           <div className="text-6xl mb-4 animate-bounce">🎉</div>
           <h2 className="font-heading text-3xl font-semibold text-foreground mb-2">¡Pago confirmado!</h2>
-          <p className="text-muted-foreground mb-6">Tu compra fue procesada exitosamente.</p>
-          <div className="glass rounded-2xl p-6 mb-6">
+
+          <div className="glass rounded-2xl p-6 mb-4">
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
               {confNums.length === 1 ? "Tu número" : "Tus números"}
             </p>
-            <div className="flex flex-wrap gap-2 justify-center mb-4">
+            <div className="flex flex-wrap gap-2 justify-center">
               {confNums.map((n) => (
                 <span key={n} className="font-heading text-2xl font-semibold text-gold tabular-nums">{format(n)}</span>
               ))}
             </div>
-            <p className="text-sm text-muted-foreground">Guarda estos números — son tu participación oficial en el sorteo.</p>
           </div>
+
+          <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-5 py-4 mb-5 text-left">
+            <p className="text-sm font-semibold text-amber-400 mb-1">⚠️ Paso obligatorio para recibir tu boleta</p>
+            <p className="text-sm text-muted-foreground">
+              Tu boleta oficial <span className="text-foreground font-medium">solo se envía por WhatsApp</span>. Debes tocar el botón de abajo para enviarnos tu mensaje — sin ese paso no podemos enviarte la boleta.
+            </p>
+          </div>
+
           <a
             href={`https://wa.me/${WA_ADMIN}?text=${waText}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full h-14 rounded-full font-semibold text-white mb-3"
-            style={{ background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)" }}
+            className="flex items-center justify-center gap-2 w-full h-14 rounded-full font-semibold text-white mb-3 shadow-lg"
+            style={{ background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)", boxShadow: "0 8px 32px rgba(37,211,102,0.35)" }}
           >
             <svg viewBox="0 0 24 24" className="size-5 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.554 4.122 1.524 5.855L.057 23.203a.75.75 0 0 0 .916.916l5.348-1.467A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.722 9.722 0 0 1-4.964-1.362l-.356-.211-3.695 1.013 1.013-3.695-.211-.356A9.722 9.722 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
-            Enviar mis boletas por WhatsApp
+            Recibir mi boleta por WhatsApp
           </a>
+          <p className="text-xs text-muted-foreground mb-4">El mensaje ya está escrito — solo toca Enviar</p>
           <Button variant="outline" className="w-full rounded-full bg-transparent" onClick={() => setStep("select")}>
             Comprar más números
           </Button>
