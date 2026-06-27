@@ -52,7 +52,7 @@ const garantias = [
   {
     icon: Lock,
     title: "Pago 100% seguro",
-    desc: "Bold procesa tu pago con el mismo cifrado que usan los bancos. Tus datos nunca se almacenan.",
+    desc: "Mercado Pago procesa tu pago con el mismo cifrado que usan los bancos. Tus datos nunca se almacenan.",
     badge: "Cifrado bancario",
     color: "text-available",
     bg: "bg-available/10 border-available/20",
