@@ -83,6 +83,11 @@ export function MpCheckout({ amount, preferenceId, orderReference, publicKey, on
         },
       }}
       onSubmit={handleSubmit}
+      onFormChange={(data: any) => {
+        if (data?.cardNumberComplete || data?.selectedPaymentMethod) {
+          ;(window as any).fbq?.("track", "AddPaymentInfo", { value: amount, currency: "COP" })
+        }
+      }}
       onError={(err) => {
         console.error("MP Brick error:", err)
         onError()

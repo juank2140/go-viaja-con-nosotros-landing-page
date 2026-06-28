@@ -106,6 +106,10 @@ function PagoExitosoInner() {
         return
       }
 
+      const total = numeros.length * pu
+      if (typeof window !== "undefined" && (window as any).fbq) {
+        ;(window as any).fbq("track", "Purchase", { value: total, currency: "COP", num_items: numeros.length, content_type: "product" })
+      }
       setEstado("exitoso")
     }
 

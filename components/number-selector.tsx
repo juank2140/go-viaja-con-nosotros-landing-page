@@ -1,5 +1,8 @@
 "use client"
 
+declare global { interface Window { fbq?: (...args: unknown[]) => void } }
+function fbq(...args: unknown[]) { window.fbq?.(...args) }
+
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -188,7 +191,9 @@ export function NumberSelector() {
 
   function toggle(n: number) {
     if (!esLibre(n) && !selected.includes(n)) return
+    const adding = !selected.includes(n)
     setSelected((prev) => prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n])
+    if (adding) fbq("track", "AddToCart", { content_ids: [String(n)], content_type: "product", value: pu, currency: "COP" })
   }
 
   function celValido(cel: string) {
@@ -204,6 +209,7 @@ export function NumberSelector() {
     if (errs.nombre || errs.celular || errs.celularInvalido) return
     if (selected.length === 0) return
 
+    fbq("track", "InitiateCheckout", { num_items: selected.length, value: total, currency: "COP" })
     setEnviando(true)
     try {
       const cel = form.celular.replace(/\D/g, "")
@@ -366,6 +372,7 @@ export function NumberSelector() {
     }
     await update(ref(db), extras)
 
+    fbq("track", "Purchase", { value: selected.length * pu, currency: "COP", num_items: selected.length, content_type: "product" })
     playChime()
     setConfNums([...selected])
     setSelected([])
