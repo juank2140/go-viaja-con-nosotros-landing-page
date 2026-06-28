@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import Image from "next/image"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
@@ -394,7 +395,7 @@ export function Hero() {
           <Plane className="size-7 rotate-45" />
         </div>
 
-        <img src="/images/logo.png" alt="Go Viaja Con Nosotros" className="animate-rise mb-6 h-24 w-auto drop-shadow-2xl sm:h-32" />
+        <Image src="/images/logo.png" alt="Go Viaja Con Nosotros" width={256} height={128} priority className="animate-rise mb-6 h-24 w-auto drop-shadow-2xl sm:h-32" />
 
         <span className="animate-rise mb-6 inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/40 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-gold backdrop-blur">
           <Sparkles className="size-3.5" />

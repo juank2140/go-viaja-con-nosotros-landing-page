@@ -29,7 +29,16 @@ export default function RootLayout({
       className={`${geistSans.variable} ${cormorant.variable} bg-background`}
     >
       <head>
-        <Script src="https://checkout.bold.co/library/boldPaymentButton.js" strategy="beforeInteractive" />
+        {/* Preconnect para recursos críticos */}
+        <link rel="preconnect" href="https://player.vimeo.com" />
+        <link rel="preconnect" href="https://i.vimeocdn.com" />
+        <link rel="preconnect" href="https://connect.facebook.net" />
+        <link rel="dns-prefetch" href="https://www.wasenderapi.com" />
+      </head>
+      <body className="font-sans antialiased">
+        {children}
+        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {/* Meta Pixel */}
         <Script id="meta-pixel" strategy="afterInteractive">{`
           !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
           n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -40,10 +49,6 @@ export default function RootLayout({
           fbq('track','PageView');
         `}</Script>
         <noscript><img height="1" width="1" style={{display:'none'}} src="https://www.facebook.com/tr?id=1765504277649828&ev=PageView&noscript=1" /></noscript>
-      </head>
-      <body className="font-sans antialiased">
-        {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )

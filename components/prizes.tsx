@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Star, PartyPopper, Calendar, Gift, Banknote, MapPin, Plane } from "lucide-react"
 
 export function Prizes() {
@@ -18,10 +19,13 @@ export function Prizes() {
         {/* Premio Mayor */}
         <article className="group relative overflow-hidden rounded-3xl border border-gold/25 shadow-2xl shadow-black/40">
           {/* full-bleed background image */}
-          <img
+          <Image
             src="/images/hotel-riu-cancun.png"
             alt="Hotel RIU 4 estrellas en Cancún con piscina frente al mar"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 1152px"
+            className="object-cover transition-transform duration-[1200ms] group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
@@ -67,10 +71,12 @@ export function Prizes() {
 
         {/* Premio Anticipado */}
         <article className="group relative mt-6 overflow-hidden rounded-3xl border border-available/30 shadow-xl shadow-black/30">
-          <img
+          <Image
             src="/images/cartagena.png"
             alt="Calles coloniales de Cartagena de Indias"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
+            fill
+            sizes="(max-width: 768px) 100vw, 1152px"
+            className="object-cover transition-transform duration-[1200ms] group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/20" />
 
