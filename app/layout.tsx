@@ -36,10 +36,10 @@ export default function RootLayout({
           n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
           t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
           document,'script','https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init','2020636644865927');
+          fbq('init','1765504277649828');
           fbq('track','PageView');
         `}</Script>
-        <noscript><img height="1" width="1" style={{display:'none'}} src="https://www.facebook.com/tr?id=2020636644865927&ev=PageView&noscript=1" /></noscript>
+        <noscript><img height="1" width="1" style={{display:'none'}} src="https://www.facebook.com/tr?id=1765504277649828&ev=PageView&noscript=1" /></noscript>
       </head>
       <body className="font-sans antialiased">
         {children}
