@@ -11,6 +11,7 @@ import { Search, X } from "lucide-react"
 import { initializeApp, getApps } from "firebase/app"
 import { getDatabase, ref, onValue, update, runTransaction } from "firebase/database"
 import { MpCheckout } from "@/components/mp-checkout"
+import { liveUpdate, liveEvent } from "@/lib/live-track"
 
 const FB_CONFIG = {
   apiKey: "AIzaSyAB5GIpefHLButGqp1FZz-Vag1IzTp7EdI",
@@ -192,8 +193,15 @@ export function NumberSelector() {
   function toggle(n: number) {
     if (!esLibre(n) && !selected.includes(n)) return
     const adding = !selected.includes(n)
-    setSelected((prev) => prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n])
-    if (adding) fbq("track", "AddToCart", { content_ids: [String(n)], content_type: "product", value: pu, currency: "COP" })
+    const newSelected = selected.includes(n) ? selected.filter((x) => x !== n) : [...selected, n]
+    setSelected(newSelected)
+    if (adding) {
+      fbq("track", "AddToCart", { content_ids: [String(n)], content_type: "product", value: pu, currency: "COP" })
+      liveUpdate("seleccionando", { nums: newSelected, total: newSelected.length * precioUnitario(newSelected.length) }).catch(() => {})
+      liveEvent("addtocart", { num: n, nums: newSelected }).catch(() => {})
+    } else if (newSelected.length === 0) {
+      liveUpdate("visitando").catch(() => {})
+    }
   }
 
   function celValido(cel: string) {
@@ -210,6 +218,8 @@ export function NumberSelector() {
     if (selected.length === 0) return
 
     fbq("track", "InitiateCheckout", { num_items: selected.length, value: total, currency: "COP" })
+    liveUpdate("checkout", { nums: selected, total, nombre: form.nombre.trim(), ciudad: form.ciudad.trim() }).catch(() => {})
+    liveEvent("initiatecheckout", { nums: selected, total, nombre: form.nombre.trim() }).catch(() => {})
     setEnviando(true)
     try {
       const cel = form.celular.replace(/\D/g, "")
@@ -373,6 +383,8 @@ export function NumberSelector() {
     await update(ref(db), extras)
 
     fbq("track", "Purchase", { value: selected.length * pu, currency: "COP", num_items: selected.length, content_type: "product" })
+    liveUpdate("comprado", { nums: selected, total: selected.length * pu, nombre: form.nombre.trim(), ciudad: form.ciudad.trim() }).catch(() => {})
+    liveEvent("purchase", { nums: selected, total: selected.length * pu, nombre: form.nombre.trim(), ciudad: form.ciudad.trim() }).catch(() => {})
     playChime()
     setConfNums([...selected])
     setSelected([])

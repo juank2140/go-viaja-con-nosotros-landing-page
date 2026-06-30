@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Geist } from 'next/font/google'
 import Script from 'next/script'
+import { LivePresence } from '@/components/live-presence'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -36,6 +37,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.wasenderapi.com" />
       </head>
       <body className="font-sans antialiased">
+        <LivePresence />
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
         {/* Meta Pixel */}
