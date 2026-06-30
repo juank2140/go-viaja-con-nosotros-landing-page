@@ -30,11 +30,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${cormorant.variable} bg-background`}
     >
       <head>
-        {/* Preconnect para recursos críticos */}
-        <link rel="preconnect" href="https://player.vimeo.com" />
-        <link rel="preconnect" href="https://i.vimeocdn.com" />
         <link rel="preconnect" href="https://connect.facebook.net" />
-        <link rel="dns-prefetch" href="https://www.wasenderapi.com" />
       </head>
       <body className="font-sans antialiased">
         <LivePresence />
