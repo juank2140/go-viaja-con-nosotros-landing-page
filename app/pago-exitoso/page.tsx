@@ -42,7 +42,7 @@ function PagoExitosoInner() {
 
     async function confirmar() {
       // Leer datos guardados en sessionStorage por number-selector
-      const raw = sessionStorage.getItem(`mp_order_${orderReference}`)
+      const raw = localStorage.getItem(`mp_order_${orderReference}`)
       if (!raw) {
         // Si no hay sessionStorage (otra pestaña, otro dispositivo), mostrar error con soporte
         setEstado("error")
@@ -93,7 +93,7 @@ function PagoExitosoInner() {
       await update(ref(db), extras)
 
       // Limpiar sessionStorage
-      sessionStorage.removeItem(`mp_order_${orderReference}`)
+      localStorage.removeItem(`mp_order_${orderReference}`)
 
       if (conflictos.length > 0) {
         const waMsg = encodeURIComponent(
