@@ -13,9 +13,12 @@ export async function POST(req: NextRequest) {
   const client = new MercadoPagoConfig({ accessToken })
   const payment = new Payment(client)
 
-  console.log("mp-pay body:", JSON.stringify({ paymentMethodId, token: !!token, financialInstitution: body.financialInstitution, payer }))
   const isPSE = paymentMethodId === "pse"
   const isTicket = !token && !isPSE // Efecty y otros métodos en efectivo
+
+  // Extraer celular del orderReference (formato GV-{cel}-{timestamp})
+  const celMatch = orderReference?.match(/^GV-(\d+)-/)
+  const cel = celMatch?.[1] ?? ""
 
   try {
     const paymentBody: any = {
@@ -26,22 +29,32 @@ export async function POST(req: NextRequest) {
       payer: {
         email: payer?.email ?? "cliente@goviaja.co",
         entity_type: payer?.entity_type ?? "individual",
-        first_name: payer?.first_name,
-        last_name: payer?.last_name,
+        first_name: payer?.first_name ?? "Cliente",
+        last_name: payer?.last_name ?? "Go Viaja",
         identification: payer?.identification,
-        address: payer?.address,
-        phone: payer?.phone,
+        address: payer?.address ?? {
+          zip_code: "11001",
+          street_name: "Colombia",
+          street_number: "1",
+          neighborhood: "Centro",
+          city: "Bogota",
+          federal_unit: "DC",
+        },
+        phone: payer?.phone ?? {
+          area_code: cel.slice(0, 3) || "300",
+          number: cel.slice(3) || "0000000",
+        },
       },
     }
 
     if (isPSE) {
       // PSE: redirección bancaria
       paymentBody.transaction_details = {
-        financial_institution: body.financialInstitution,
+        financial_institution: String(body.financialInstitution),
       }
       paymentBody.callback_url = "https://viajaconnosotros.co/pago-exitoso"
       paymentBody.additional_info = {
-        ip_address: req.headers.get("x-forwarded-for") ?? "127.0.0.1",
+        ip_address: (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "127.0.0.1",
       }
     } else if (isTicket) {
       // Efecty y similares: sin token, sin installments
