@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { initializeApp, getApps } from "firebase/app"
-import { getDatabase, ref, runTransaction, update } from "firebase/database"
+import { getDatabase, ref, runTransaction, update, get } from "firebase/database"
 
 const FB_CONFIG = {
   apiKey: "AIzaSyAB5GIpefHLButGqp1FZz-Vag1IzTp7EdI",
@@ -42,11 +42,17 @@ function PagoExitosoInner() {
 
     async function confirmar() {
       // Leer datos guardados en sessionStorage por number-selector
-      const raw = localStorage.getItem(`mp_order_${orderReference}`)
+      let raw = localStorage.getItem(`mp_order_${orderReference}`)
       if (!raw) {
-        // Si no hay sessionStorage (otra pestaña, otro dispositivo), mostrar error con soporte
-        setEstado("error")
-        return
+        // Fallback: leer de Firebase (cubre PSE que abre app del banco)
+        const db = getDB()
+        const snap = await get(ref(db, `sorteo/pendientes/${orderReference.replace(/\./g, "_")}`))
+        if (snap.exists()) {
+          raw = JSON.stringify(snap.val())
+        } else {
+          setEstado("error")
+          return
+        }
       }
 
       const { nums: numeros, nombre: nombreCliente, cel, ciudad, pu } = JSON.parse(raw) as {
@@ -94,6 +100,7 @@ function PagoExitosoInner() {
 
       // Limpiar sessionStorage
       localStorage.removeItem(`mp_order_${orderReference}`)
+      update(ref(db), { [`sorteo/pendientes/${orderReference.replace(/\./g, "_")}`]: null })
 
       if (conflictos.length > 0) {
         const waMsg = encodeURIComponent(

@@ -239,15 +239,23 @@ export function NumberSelector() {
       const { preferenceId, publicKey } = await res.json()
       if (!preferenceId) throw new Error("No se pudo crear el pago")
 
-      // localStorage persiste entre redirecciones cross-dominio (PSE, Efecty)
-      localStorage.setItem(`mp_order_${orderReference}`, JSON.stringify({
+      // Guardar en localStorage Y Firebase para sobrevivir redirecciones PSE
+      const orderData = {
         nums: selected,
         nombre: form.nombre.trim(),
         cel,
         ciudad: form.ciudad.trim(),
         total,
         pu,
-      }))
+      }
+      localStorage.setItem(`mp_order_${orderReference}`, JSON.stringify(orderData))
+      const db = getFirebaseDB()
+      await update(ref(db), {
+        [`sorteo/pendientes/${orderReference.replace(/\./g, "_")}`]: {
+          ...orderData,
+          ts: Date.now(),
+        },
+      })
 
       // Mostrar Brick de pago embebido
       setCheckout({ preferenceId, orderReference, publicKey })
