@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
   const client = new MercadoPagoConfig({ accessToken })
   const payment = new Payment(client)
 
-  const isPSE = paymentMethodId === "pse" || (!token && paymentMethodId)
+  const isPSE = paymentMethodId === "pse"
+  const isTicket = !token && !isPSE // Efecty y otros métodos en efectivo
 
   try {
     const paymentBody: any = {
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (isPSE) {
-      // PSE: pago por redirección bancaria, sin token
+      // PSE: redirección bancaria
       paymentBody.transaction_details = {
         financial_institution: body.financialInstitution,
       }
@@ -37,8 +38,13 @@ export async function POST(req: NextRequest) {
       paymentBody.additional_info = {
         ip_address: req.headers.get("x-forwarded-for") ?? "127.0.0.1",
       }
+    } else if (isTicket) {
+      // Efecty y similares: sin token, sin installments
+      paymentBody.additional_info = {
+        ip_address: req.headers.get("x-forwarded-for") ?? "127.0.0.1",
+      }
     } else {
-      // Tarjeta: requiere token e installments
+      // Tarjeta débito/crédito y Wallet: requiere token
       paymentBody.token = token
       paymentBody.installments = Number(installments ?? 1)
     }
