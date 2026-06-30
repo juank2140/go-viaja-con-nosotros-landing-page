@@ -25,8 +25,12 @@ export async function POST(req: NextRequest) {
       external_reference: orderReference,
       payer: {
         email: payer?.email ?? "cliente@goviaja.co",
-        identification: payer?.identification,
         entity_type: payer?.entity_type ?? "individual",
+        first_name: payer?.first_name,
+        last_name: payer?.last_name,
+        identification: payer?.identification,
+        address: payer?.address,
+        phone: payer?.phone,
       },
     }
 
