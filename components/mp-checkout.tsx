@@ -52,13 +52,18 @@ export function MpCheckout({ amount, preferenceId, orderReference, publicKey, on
           paymentMethodId: fd.payment_method_id,
           installments: fd.installments ?? 1,
           payer: fd.payer,
+          financialInstitution: fd.transaction_details?.financial_institution ?? fd.financial_institution,
           amount,
           orderReference,
         }),
       })
       const data = await res.json()
+
       if (data.status === "approved") {
         onSuccess(data.id)
+      } else if (data.status === "pending" && data.redirectUrl) {
+        // PSE u otro método con redirección bancaria
+        window.location.href = data.redirectUrl
       } else {
         setErrorMsg(getMensaje(data.status ?? "rejected", data.statusDetail ?? ""))
       }

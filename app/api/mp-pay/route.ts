@@ -13,27 +13,45 @@ export async function POST(req: NextRequest) {
   const client = new MercadoPagoConfig({ accessToken })
   const payment = new Payment(client)
 
+  const isPSE = paymentMethodId === "pse" || (!token && paymentMethodId)
+
   try {
-    const result = await payment.create({
-      body: {
-        transaction_amount: Number(amount),
-        token,
-        description: description ?? "Boleta Go Viaja Con Nosotros 2026",
-        installments: Number(installments ?? 1),
-        payment_method_id: paymentMethodId,
-        external_reference: orderReference,
-        payer: {
-          email: payer?.email ?? "cliente@goviaja.co",
-          identification: payer?.identification,
-        },
+    const paymentBody: any = {
+      transaction_amount: Number(amount),
+      description: description ?? "Boleta Go Viaja Con Nosotros 2026",
+      payment_method_id: paymentMethodId,
+      external_reference: orderReference,
+      payer: {
+        email: payer?.email ?? "cliente@goviaja.co",
+        identification: payer?.identification,
+        entity_type: payer?.entity_type ?? "individual",
       },
-    })
+    }
+
+    if (isPSE) {
+      // PSE: pago por redirección bancaria, sin token
+      paymentBody.transaction_details = {
+        financial_institution: body.financialInstitution,
+      }
+      paymentBody.callback_url = "https://viajaconnosotros.co/pago-exitoso"
+      paymentBody.additional_info = {
+        ip_address: req.headers.get("x-forwarded-for") ?? "127.0.0.1",
+      }
+    } else {
+      // Tarjeta: requiere token e installments
+      paymentBody.token = token
+      paymentBody.installments = Number(installments ?? 1)
+    }
+
+    const result = await payment.create({ body: paymentBody })
 
     return NextResponse.json({
       status: result.status,
       statusDetail: result.status_detail,
       id: result.id,
       orderReference,
+      // Para PSE devuelve la URL del banco
+      redirectUrl: (result as any).transaction_details?.external_resource_url ?? null,
     })
   } catch (err: any) {
     console.error("MP payment error:", err)
