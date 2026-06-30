@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
   const client = new MercadoPagoConfig({ accessToken })
   const payment = new Payment(client)
 
+  console.log("mp-pay body:", JSON.stringify({ paymentMethodId, token: !!token, financialInstitution: body.financialInstitution, payer }))
   const isPSE = paymentMethodId === "pse"
   const isTicket = !token && !isPSE // Efecty y otros métodos en efectivo
 
@@ -60,10 +61,12 @@ export async function POST(req: NextRequest) {
       redirectUrl: (result as any).transaction_details?.external_resource_url ?? null,
     })
   } catch (err: any) {
-    console.error("MP payment error:", err)
+    const cause = err?.cause ?? err?.error ?? err?.message ?? String(err)
+    console.error("MP payment error full:", JSON.stringify(cause))
     return NextResponse.json({
       error: err?.message ?? "Error procesando pago",
       status: "error",
+      mpError: cause,
     }, { status: 500 })
   }
 }
