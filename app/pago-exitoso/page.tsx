@@ -30,6 +30,7 @@ function PagoExitosoInner() {
   const orderReference = params.get("external_reference") ?? ""
   const status = params.get("collection_status") ?? params.get("status") ?? ""
   const paymentId = params.get("collection_id") ?? params.get("payment_id") ?? ""
+  const paymentType = params.get("payment_type") ?? ""
 
   const [estado, setEstado] = useState<"cargando" | "exitoso" | "fallido" | "error" | "conflicto">("cargando")
   const [nums, setNums] = useState<number[]>([])
@@ -43,12 +44,14 @@ function PagoExitosoInner() {
     async function confirmar() {
       // Leer datos guardados en sessionStorage por number-selector
       let raw = localStorage.getItem(`mp_order_${orderReference}`)
+      let fromFirebase = false
       if (!raw) {
         // Fallback: leer de Firebase (cubre PSE que abre app del banco)
         const db = getDB()
         const snap = await get(ref(db, `sorteo/pendientes/${orderReference.replace(/\./g, "_")}`))
         if (snap.exists()) {
           raw = JSON.stringify(snap.val())
+          fromFirebase = true
         } else {
           setEstado("error")
           return
@@ -62,7 +65,10 @@ function PagoExitosoInner() {
       setNombre(nombreCliente)
       setNums(numeros)
 
-      if (status !== "approved") {
+      // PSE redirige con status "pending" — si hay pendiente en Firebase es transferencia bancaria válida
+      const isPSE = paymentType === "bank_transfer" || fromFirebase
+      const pagoProcesado = status === "approved" || (status === "pending" && isPSE)
+      if (!pagoProcesado) {
         setEstado("fallido")
         return
       }
