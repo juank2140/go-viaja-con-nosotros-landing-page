@@ -52,6 +52,13 @@ export async function liveInit() {
 
   await set(sessionRef, data)
 
+  // Registrar visita solo si es sesión nueva (no recarga)
+  const isNew = !sessionStorage.getItem("_live_pv")
+  if (isNew) {
+    sessionStorage.setItem("_live_pv", "1")
+    await push(ref(db, "live/events"), { type: "pageview", sid, ts: serverTimestamp() })
+  }
+
   // Borrar sesión al cerrar pestaña
   onDisconnect(sessionRef).remove()
 
