@@ -41,16 +41,16 @@ const FAQS: Record<string, { q: string; a: string }[]> = {
   ],
   pagos: [
     {
+      q: "¿Cómo se realiza el pago?",
+      a: "Seleccionas tus números, tocas el botón de WhatsApp y te atendemos al instante. Te indicamos los datos de pago (transferencia, Nequi, DaviPlata u otros) y confirmamos tu número en el momento.",
+    },
+    {
+      q: "¿Es seguro comprar así?",
+      a: "Totalmente. Tratas directamente con nosotros, sin intermediarios. Confirmamos tu número antes de que hagas el pago y recibes tu boleta oficial por WhatsApp.",
+    },
+    {
       q: "¿Qué métodos de pago aceptan?",
-      a: "Aceptamos tarjetas débito y crédito (Visa, Mastercard, Amex), PSE, Nequi y DaviPlata — todo a través de Bold, la pasarela de pagos más usada en Colombia.",
-    },
-    {
-      q: "¿Es seguro pagar en línea?",
-      a: "100% seguro. Bold está certificado PCI-DSS, el estándar máximo de seguridad para pagos. Nunca almacenamos tu información bancaria.",
-    },
-    {
-      q: "¿Puedo pagar en efectivo o por transferencia?",
-      a: "Por el momento el pago es únicamente en línea a través de Bold. Si tienes alguna dificultad, escríbenos al WhatsApp y te orientamos.",
+      a: "Transferencia bancaria, Nequi, DaviPlata y efectivo. Al escribirnos por WhatsApp te indicamos cuál te queda más fácil.",
     },
     {
       q: "¿Por qué me piden nombre y celular?",

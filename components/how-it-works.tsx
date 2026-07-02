@@ -3,7 +3,7 @@ import { Hash, UserPlus, ShieldCheck, Trophy } from "lucide-react"
 const steps = [
   { icon: Hash, title: "Elige tu número", desc: "Busca y selecciona el número que sientas de la suerte." },
   { icon: UserPlus, title: "Regístrate", desc: "Ingresa tu nombre, celular y ciudad en segundos." },
-  { icon: ShieldCheck, title: "Paga seguro", desc: "Paga con Bold: tarjeta, PSE o Nequi de forma segura." },
+  { icon: ShieldCheck, title: "Contáctanos", desc: "Te enviamos los datos de pago por WhatsApp y confirmamos tu número al instante." },
   { icon: Trophy, title: "¡A ganar!", desc: "Quedas participando por tu viaje soñado. ¡Suerte!" },
 ]
 

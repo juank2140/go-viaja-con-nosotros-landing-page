@@ -14,7 +14,7 @@ const pillars = [
   {
     icon: CreditCard,
     title: "Pagos protegidos",
-    desc: "Procesamos con Bold: tarjeta, PSE y Nequi con cifrado bancario. Nunca guardamos tus datos.",
+    desc: "Coordina tu pago directamente con nosotros por WhatsApp. Proceso claro, rápido y sin intermediarios.",
   },
   {
     icon: Trophy,
@@ -51,9 +51,9 @@ const brands = [
 const garantias = [
   {
     icon: Lock,
-    title: "Pago 100% seguro",
-    desc: "Mercado Pago procesa tu pago con el mismo cifrado que usan los bancos. Tus datos nunca se almacenan.",
-    badge: "Cifrado bancario",
+    title: "Compra 100% segura",
+    desc: "Nos comunicamos contigo directamente, confirmamos tu número y te guiamos con el pago paso a paso.",
+    badge: "Atención personal",
     color: "text-available",
     bg: "bg-available/10 border-available/20",
   },
