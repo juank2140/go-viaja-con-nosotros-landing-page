@@ -15,7 +15,7 @@ const FB_CONFIG = {
   appId: "1:760359671653:web:752aebcfb017c50a15f38c",
 }
 
-const WA_ADMIN = "573005087122"
+const WA_ADMIN = "573005099715"
 const SORTEO_NOMBRE = "Go Viaja Con Nosotros 2026"
 
 function getDB() {

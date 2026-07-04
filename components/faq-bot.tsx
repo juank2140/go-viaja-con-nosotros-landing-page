@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { X, ChevronLeft, MessageCircle } from "lucide-react"
 
-const WA_ASESOR = "https://wa.me/573005087122?text=" + encodeURIComponent("Hola, tengo una pregunta sobre el sorteo Go Viaja Con Nosotros 🌍")
+const WA_ASESOR = "https://wa.me/573005099715?text=" + encodeURIComponent("Hola, tengo una pregunta sobre el sorteo Go Viaja Con Nosotros 🌍")
 
 // ── Contenido ────────────────────────────────────────────────
 

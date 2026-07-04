@@ -40,7 +40,7 @@ export function SiteFooter() {
             🔍 Verificar mi boleta
           </a>
           <a
-            href="tel:+573005087122"
+            href="tel:+573005099715"
             className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-gold"
           >
             <Phone className="size-4 text-gold" /> 300 508 7122

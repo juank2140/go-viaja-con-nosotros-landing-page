@@ -143,7 +143,7 @@ export default function VerificarPage() {
               Verifica el número ingresado. Si acabas de comprar, espera unos minutos e intenta de nuevo.
             </p>
             <a
-              href={`https://wa.me/573005087122?text=${encodeURIComponent("Hola, quiero verificar mi boleta de Go Viaja Con Nosotros.")}`}
+              href={`https://wa.me/573005099715?text=${encodeURIComponent("Hola, quiero verificar mi boleta de Go Viaja Con Nosotros.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block mt-4 text-sm text-gold underline underline-offset-4"

@@ -31,7 +31,7 @@ const PAGE_SIZE = 100
 const TOTAL = 10000
 const PRECIO_1 = 25000
 const PRECIO_2 = 20000
-const WA_ADMIN = "573005087122"
+const WA_ADMIN = "573005099715"
 const SORTEO_NOMBRE = "Go Viaja Con Nosotros 2026"
 
 function format(n: number) { return n.toString().padStart(4, "0") }
