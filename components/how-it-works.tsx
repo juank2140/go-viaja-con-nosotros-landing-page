@@ -1,10 +1,10 @@
-import { Hash, UserPlus, ShieldCheck, Trophy } from "lucide-react"
+import { MessageCircle, ListChecks, CheckCircle, Banknote } from "lucide-react"
 
 const steps = [
-  { icon: Hash, title: "Elige tu número", desc: "Busca y selecciona el número que sientas de la suerte." },
-  { icon: UserPlus, title: "Regístrate", desc: "Ingresa tu nombre, celular y ciudad en segundos." },
-  { icon: ShieldCheck, title: "Contáctanos", desc: "Te enviamos los datos de pago por WhatsApp y confirmamos tu número al instante." },
-  { icon: Trophy, title: "¡A ganar!", desc: "Quedas participando por tu viaje soñado. ¡Suerte!" },
+  { icon: MessageCircle, title: "Escríbenos por WhatsApp", desc: "Contáctanos directamente y un asesor te atenderá de inmediato." },
+  { icon: ListChecks, title: "Te mostramos los números disponibles", desc: "Resolvemos tus dudas y te enseñamos qué números están libres para que elijas." },
+  { icon: CheckCircle, title: "Eliges y confirmas tu número", desc: "Selecciona el que sientas de la suerte y te lo apartamos." },
+  { icon: Banknote, title: "Realizas el pago y quedas participando", desc: "Confirmas el pago y recibes tu boleta oficial. ¡Ya estás en el sorteo!" },
 ]
 
 export function HowItWorks() {

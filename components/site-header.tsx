@@ -7,7 +7,7 @@ import { Menu, X, Ticket } from "lucide-react"
 
 const links = [
   { href: "#premios", label: "Premios" },
-  { href: "#numeros", label: "Números" },
+  { href: "#numeros", label: "Aparta tu número" },
   { href: "#confianza", label: "Confianza" },
   { href: "#como-funciona", label: "Cómo funciona" },
 ]
