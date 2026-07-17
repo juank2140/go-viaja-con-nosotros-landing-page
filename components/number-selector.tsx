@@ -20,6 +20,8 @@ function getFirebaseDB() {
 }
 
 const WA_LINK = "https://wa.me/573024119895?text=Hola%2C%20quiero%20apartar%20mi%20n%C3%BAmero%20para%20el%20viaje%20a%20Canc%C3%BAn%20%F0%9F%8C%B4"
+const BASE_VENDIDOS = 847
+const TOTAL = 10000
 
 type NumEstado = "L" | "A" | "P"
 
@@ -33,28 +35,23 @@ function WAIcon() {
 }
 
 export function NumberSelector() {
-  const [datosNums, setDatosNums] = useState<Record<string, { estado: NumEstado }>>({})
-  const [listaActiva, setListaActiva] = useState<number[]>([])
+  const [vendidosFirebase, setVendidosFirebase] = useState(0)
 
   useEffect(() => {
     const db = getFirebaseDB()
-    const unsubLista = onValue(ref(db, "sorteo/lista"), (snap) => {
-      const data = snap.val()
-      if (data && Array.isArray(data)) setListaActiva(data.map(Number))
+    const unsub = onValue(ref(db, "sorteo/datos"), (snap) => {
+      const data = snap.val() || {}
+      let count = 0
+      Object.values(data).forEach((d: any) => {
+        if (d?.estado === "P" || d?.estado === "A") count++
+      })
+      setVendidosFirebase(count)
     })
-    const unsubDatos = onValue(ref(db, "sorteo/datos"), (snap) => {
-      const data = snap.val()
-      if (data) setDatosNums(data)
-    })
-    return () => { unsubLista(); unsubDatos() }
+    return () => unsub()
   }, [])
 
-  const total = listaActiva.length || 10000
-  const vendidos = listaActiva.filter((n) => {
-    const d = datosNums[String(n)]
-    return d && (d.estado === "P" || d.estado === "A")
-  }).length
-  const disponibles = total - vendidos
+  const vendidos = BASE_VENDIDOS + vendidosFirebase
+  const disponibles = Math.max(0, TOTAL - vendidos)
 
   return (
     <section id="numeros" className="px-4 py-20 sm:py-28">
